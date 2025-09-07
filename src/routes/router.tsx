@@ -1,12 +1,11 @@
 import { createBrowserRouter } from "react-router";
 import App from "../App";
-import { loader as userLoader} from "./user/index";
 
 // Lazy-load route components (map default export to Route Module Component)
 const UserIndex = () =>
   import("./user/index").then((m) => ({ Component: m.default }));
 const UserChat = () =>
-  import("./user/chat").then((m) => ({ Component: m.default }));
+  import("./user/chat").then((m) => ({ Component: m.default ,loader:m.loader}));
 const UserQuestions = () =>
   import("./user/questions").then((m) => ({ Component: m.default }));
 
@@ -30,7 +29,7 @@ export const router = createBrowserRouter([
         path: "user",
         lazy: UserLayout,
         children: [
-          { index: true, lazy: UserIndex, loader: userLoader },
+          { index: true, lazy: UserIndex },
           { path: "chat", lazy: UserChat },
           { path: "questions", lazy: UserQuestions },
         ],
