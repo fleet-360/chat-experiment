@@ -15,7 +15,7 @@ export default function AdminLayout() {
             {t("nav.chat")}
           </NavLink>
         </nav>
-        <div className="ml-auto text-xs">
+        <div className="ltr:ml-auto rtl:mr-auto  text-xs">
           <Link to="/user" className="underline">{t("common.goToUser")}</Link>
         </div>
       </div>

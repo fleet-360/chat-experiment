@@ -8,18 +8,30 @@ export default function UserLayout() {
       <div className="mb-4 flex items-center gap-4">
         <div className="text-lg font-semibold">{t("common.userArea")}</div>
         <nav className="flex gap-3 text-sm">
-          <NavLink to="/user" end className={({ isActive }) => isActive ? "font-bold" : undefined}>
+          <NavLink
+            to="/user"
+            end
+            className={({ isActive }) => (isActive ? "font-bold" : undefined)}
+          >
             {t("nav.home")}
           </NavLink>
-          <NavLink to="/user/chat" className={({ isActive }) => isActive ? "font-bold" : undefined}>
+          <NavLink
+            to="/user/chat"
+            className={({ isActive }) => (isActive ? "font-bold" : undefined)}
+          >
             {t("nav.chat")}
           </NavLink>
-          <NavLink to="/user/questions" className={({ isActive }) => isActive ? "font-bold" : undefined}>
+          <NavLink
+            to="/user/questions"
+            className={({ isActive }) => (isActive ? "font-bold" : undefined)}
+          >
             {t("nav.questions")}
           </NavLink>
         </nav>
-        <div className="ml-auto text-xs">
-          <Link to="/admin/settings" className="underline">{t("common.goToAdmin")}</Link>
+        <div className="ltr:mr-auto rtl:ml-auto text-xs">
+          <Link to="/admin/settings" className="underline">
+            {t("common.goToAdmin")}
+          </Link>
         </div>
       </div>
       <Outlet />
