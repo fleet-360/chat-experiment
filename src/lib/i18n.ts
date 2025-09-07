@@ -25,14 +25,22 @@ export const resources = {
         hebrew: "Hebrew",
         switchTo: "Language",
       },
-      pages: {
-        userHome: "User Home",
-        userChat: "User Chat",
-        userQuestions: "User Questions",
-        adminSettings: "Admin Settings",
-        adminChat: "Admin Chat",
-      },
-      consent: {
+        pages: {
+          userHome: "User Home",
+          userChat: "User Chat",
+          userQuestions: "User Questions",
+          adminSettings: "Admin Settings",
+          adminChat: "Admin Chat",
+        },
+        chat: {
+          noMessages: "No messages yet.",
+          placeholder: "Type your message",
+          send: "Send",
+          admin: "Admin",
+          missingGroup: "Missing group assignment for user. Please return to consent.",
+          noGroupOnUser: "No group found on user.",
+        },
+        consent: {
         intro: "Hello and welcome to this survey.",
         readConsent: "Before you begin, please read the consent form on this page.",
         statement: {
@@ -80,14 +88,22 @@ export const resources = {
         hebrew: "עברית",
         switchTo: "שפה",
       },
-      pages: {
-        userHome: "דף הבית של משתמש",
-        userChat: "צ'אט משתמש",
-        userQuestions: "שאלות משתמש",
-        adminSettings: "הגדרות מנהל",
-        adminChat: "צ'אט מנהל",
-      },
-      consent: {
+        pages: {
+          userHome: "דף הבית של משתמש",
+          userChat: "צ'אט משתמש",
+          userQuestions: "שאלות משתמש",
+          adminSettings: "הגדרות מנהל",
+          adminChat: "צ'אט מנהל",
+        },
+        chat: {
+          noMessages: "אין הודעות עדיין.",
+          placeholder: "הקלד/י הודעה",
+          send: "שליחה",
+          admin: "מנהל",
+          missingGroup: "חסרה שיוכות לקבוצה עבור המשתמש. אנא חזרו למסך ההסכמה.",
+          noGroupOnUser: "לא נמצאה קבוצה למשתמש.",
+        },
+        consent: {
         intro: "שלום וברוכים הבאים לסקר זה.",
         readConsent: "לפני שתתחילו, אנא קראו את טופס ההסכמה בעמוד זה.",
         statement: {
