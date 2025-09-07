@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import App from "../App";
+import { loader as userLoader} from "./user/index";
 
 // Lazy-load route components (map default export to Route Module Component)
 const UserIndex = () =>
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
         path: "user",
         lazy: UserLayout,
         children: [
-          { index: true, lazy: UserIndex, },
+          { index: true, lazy: UserIndex, loader: userLoader },
           { path: "chat", lazy: UserChat },
           { path: "questions", lazy: UserQuestions },
         ],

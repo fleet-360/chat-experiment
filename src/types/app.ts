@@ -45,7 +45,7 @@ export interface Group {
 export interface UserProfile {
   id: string;
   displayName: string;
-  prolificId: string;
+  prolificPId: string;
   age: number;
   gender: string;
   language: string;
