@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+
 export default function UserQuestions() {
-  return <div className="p-4">User Questions</div>;
+  const { t } = useTranslation();
+  return <div className="p-4">{t("pages.userQuestions")}</div>;
 }

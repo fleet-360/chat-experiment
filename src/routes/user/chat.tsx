@@ -1,3 +1,6 @@
+import { useTranslation } from "react-i18next";
+
 export default function UserChat() {
-  return <div className="p-4">User Chat</div>;
+  const { t } = useTranslation();
+  return <div className="p-4">{t("pages.userChat")}</div>;
 }
