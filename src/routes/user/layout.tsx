@@ -1,8 +1,19 @@
 import { Link, NavLink, Outlet } from "react-router";
 import { useTranslation } from "react-i18next";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { useEffect } from "react";
 
 export default function UserLayout() {
   const { t } = useTranslation();
+
+  const [_, setUserId] = useLocalStorage({ key: "userId", initialValue: "" });
+  const url = new URL(window.location.href);
+  const userId = url.searchParams.get("PROLIFIC_PID");
+
+  useEffect(() => {
+    setUserId(() => userId || "");
+  }, []);
+
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center gap-4">

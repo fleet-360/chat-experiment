@@ -1,11 +1,10 @@
 import { useTranslation } from "react-i18next";
-import { useLoaderData, type LoaderFunctionArgs } from "react-router";
 import { postOrGetUserId } from "../../services/authService";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 // Route data loader
-export async function loader(data: LoaderFunctionArgs) {
-  const url = new URL(data.request.url);
-  const userId = url.searchParams.get("PROLIFIC_PID");
+export async function loader() {
+  const [userId] = useLocalStorage({"key":'userId',"initialValue":""})
   if (!userId) {
     return null;
   }

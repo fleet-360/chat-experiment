@@ -52,8 +52,8 @@ export const resources = {
             "During the task, your conversations will be recorded and analyzed for research purposes. All data will be stored securely and used only in anonymized form, so that no individual participant can be identified.",
         },
         cta: {
-          accept: "Please consent by clicking the >> button to continue.",
-          decline: "Otherwise, please exit the study at this time.",
+          accept: "Agree",
+          decline: "Disagree",
         },
       },
     },
@@ -107,8 +107,8 @@ export const resources = {
             "במהלך המשימה, השיחות יתועדו וינותחו למטרות מחקר. כל הנתונים יאוחסנו באופן מאובטח ויעובדו בצורה מונגנבת בלבד, כך שלא ניתן יהיה לזהות משתתף בודד.",
         },
         cta: {
-          accept: "אנא הביעו הסכמתכם בלחיצה על כפתור >> כדי להמשיך.",
-          decline: "אם אינכם מסכימים, אנא צאו מהמחקר בשלב זה.",
+          accept: "אני מסכים/מה",
+          decline: "אינני מסכים/מה",
         },
       },
     },

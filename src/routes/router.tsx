@@ -5,7 +5,7 @@ import App from "../App";
 const UserIndex = () =>
   import("./user/index").then((m) => ({ Component: m.default }));
 const UserChat = () =>
-  import("./user/chat").then((m) => ({ Component: m.default ,loader:m.loader}));
+  import("./user/chat").then((m) => ({ Component: m.default }));
 const UserQuestions = () =>
   import("./user/questions").then((m) => ({ Component: m.default }));
 
