@@ -45,7 +45,7 @@ export default function Chat({ groupId,  className }: ChatProps) {
         <CardTitle>{headerTitle}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-2">
+        <div className="flex flex-col gap-3 h-[60vh] overflow-y-auto pr-2">
           {messages.length === 0 ? (
             <div className="text-sm text-muted-foreground">{t("chat.noMessages")}</div>
           ) : (

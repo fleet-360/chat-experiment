@@ -7,24 +7,37 @@ export default function MessageItem({
   message: GroupMessage & { text?: string };
 }) {
   const { t } = useTranslation();
-  const initial = message.senderName?.trim()?.charAt(0)?.toUpperCase() || "?";
+  const myId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+  const isAdmin = !!message.isAdmin;
+  const isMine = !isAdmin && myId && message.senderId === myId;
+
+  // Alignment per requirement (respecting RTL via CSS logical start/end on flex):
+  // - mine: start, - others: end, - admin: center
+  const justify = isAdmin ? "justify-center" : isMine ? "justify-start" : "justify-end";
+
+  const bubbleBase = "max-w-xl  rounded-xl px-3 py-2 text-sm shadow-sm break-words";
+  const bubbleVariant = isAdmin
+    ? "bg-secondary text-secondary-foreground"
+    : isMine
+    ? "bg-primary text-primary-foreground"
+    : "bg-muted text-foreground";
+
+  const nameMuted = isAdmin ? "text-foreground/80" : "text-foreground/90";
+
   return (
-    <div className="flex items-start gap-3">
-      <div className="size-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-medium select-none">
-        {initial}
-      </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-2 text-sm">
+    <div className={`flex w-full ${justify}`}>
+      <div className="flex flex-col  items-stretch gap-1">
+        <div className={`text-xs ${nameMuted}`}>
           <span className="font-medium">
             {message.senderName || message.senderId}
           </span>
-          {message.isAdmin && (
-            <span className="text-xs rounded bg-secondary px-1.5 py-0.5">
+          {isAdmin && (
+            <span className="ml-2 text-[11px] rounded bg-secondary px-1.5 py-0.5 align-middle">
               {t("chat.admin")}
             </span>
           )}
         </div>
-        <div className="text-sm leading-relaxed break-words">
+        <div className={`${bubbleBase} ${bubbleVariant}`}>
           {message.text ?? "—"}
         </div>
       </div>
