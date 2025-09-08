@@ -27,11 +27,11 @@ export type ChatProps = {
   groupId: string;
   title?: string;
   className?: string;
-  isAdmin:boolean
+  isAdmin?: boolean;
 };
 
 
-export default function Chat({ groupId, className,isAdmin=false }: ChatProps) {
+export default function Chat({ groupId, className, isAdmin = false }: ChatProps) {
   const [messages, setMessages] = useState<
     (GroupMessage & { text?: string })[]
   >([]);
@@ -116,7 +116,7 @@ export default function Chat({ groupId, className,isAdmin=false }: ChatProps) {
             {isAdmin && (
               <Tooltip>
                 <TooltipTrigger>
-                  <span className="block text-muted-foreground text-sm max-w-10/12 truncate ">
+                  <span className="block text-muted-foreground text-sm max-w-sm truncate ">
                     {group?.users.map((id) => `PROLIFIC_ID-${id}`).join(", ")}
                   </span>
                 </TooltipTrigger>
@@ -198,14 +198,14 @@ export default function Chat({ groupId, className,isAdmin=false }: ChatProps) {
               const userIndex = group?.users?.findIndex(
                 (id: string) => id == senderId
               );
-              const senderName =
+              const senderName =isAdmin?"admin":
                 "user-" + (userIndex ? userIndex + 1 : "unknoun");
               const gRef = doc(db, "groups", groupId);
               await updateDoc(gRef, {
                 messages: arrayUnion({
                   senderId,
                   senderName,
-                  isAdmin: false,
+                  isAdmin: isAdmin,
                   createdAt: Timestamp.now(),
                   text: value,
                 }),
@@ -214,7 +214,7 @@ export default function Chat({ groupId, className,isAdmin=false }: ChatProps) {
               console.error("Failed to send message", err);
             }
           }}
-          withEmojy={group?.groupType !== "noEmojy"}
+          withEmojy={group?.groupType !== "noEmojy" || isAdmin}
           className="w-full"
         />
       </CardFooter>

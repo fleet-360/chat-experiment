@@ -46,7 +46,6 @@ const decideAboutUserGroups = async (userId: string) => {
     const capacity: number = Number(expData?.settings?.usersInGroup ?? 4);
 
     let chosenGroupId: string | null = null;
-    let becameFull = false;
     for (const gid of groups) {
       const gRef = doc(db, "groups", gid);
       const gSnap = await getDoc(gRef);
@@ -62,7 +61,7 @@ const decideAboutUserGroups = async (userId: string) => {
       if (!users.includes(userId) && users.length < capacity) {
         await updateDoc(gRef, { users: arrayUnion(userId) });
         chosenGroupId = gid;
-        becameFull = users.length + 1 >= capacity;
+        // Track if the group became full if needed in future
         break;
       }
     }

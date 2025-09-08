@@ -17,7 +17,7 @@ export default function MessageItem({
 
   const bubbleBase = "max-w-xl  rounded-xl px-3 py-2 text-sm shadow-sm break-words";
   const bubbleVariant = isAdmin
-    ? "bg-secondary text-secondary-foreground"
+    ? "bg-red-300 text-secondary-foreground"
     : isMine
     ? "bg-primary text-primary-foreground"
     : "bg-muted text-foreground";
@@ -42,12 +42,11 @@ export default function MessageItem({
     <div className={`flex w-full ${justify}`}>
       <div className="flex flex-col  items-stretch gap-1">
         <div className={`text-xs ${nameMuted}`}>
-          <span className="font-medium">
-            {message.senderName || message.senderId}
-          </span>
-          {isAdmin && (
-            <span className="ms-2 text-[11px] rounded bg-secondary px-1.5 py-0.5 align-middle">
-              {t("chat.admin")}
+          {isAdmin ? (
+            <span className="block text-center font-medium">{t("chat.admin")}</span>
+          ) : (
+            <span className="font-medium">
+              {message.senderName || message.senderId}
             </span>
           )}
         </div>

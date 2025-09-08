@@ -29,11 +29,15 @@ export async function saveSurveyAnswers(
   await updateDoc(expRef, { surveyAnswers: [...filtered, payload] });
 }
 
-export async function getAllExperimentGroups(expId:string ) {
-  
-
- const groupsRef = query(collection(db, "groups"), where("experimentId", "==", expId));
- const groupsDocs = await getDocs(groupsRef);
-
-return groupsDocs.docs.map((doc) => ({ groupId: doc.id, groupName:doc.data().name }));
+export async function getAllExperimentGroups(expId: string) {
+  const groupsRef = query(
+    collection(db, "groups"),
+    where("experimentId", "==", expId)
+  );
+  const groupsDocs = await getDocs(groupsRef);
+  return groupsDocs.docs.map((d) => ({
+    groupId: d.id,
+    groupName: (d.data() as any).name,
+    users: (d.data() as any).users ?? [],
+  }));
 }
