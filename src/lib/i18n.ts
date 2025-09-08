@@ -31,6 +31,8 @@ export const resources = {
           userQuestions: "User Questions",
           adminSettings: "Admin Settings",
           adminChat: "Admin Chat",
+          prolificRequiredTitle: "Access Restricted",
+          prolificRequiredMessage: "you have to connect via proflic system",
         },
         chat: {
           noMessages: "No messages yet.",
@@ -93,7 +95,9 @@ export const resources = {
           userChat: "צ'אט משתמש",
           userQuestions: "שאלות משתמש",
           adminSettings: "הגדרות מנהל",
-          adminChat: "צ'אט מנהל",
+          adminChat: "צ'אט מנהל",        
+            prolificRequiredTitle: "גישה נדחתה",
+          prolificRequiredMessage: "יש להתחבר דרך מערכת Prolific",
         },
         chat: {
           noMessages: "אין הודעות עדיין.",

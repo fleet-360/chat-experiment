@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router";
-import App from "../App";
+import App, { loader as appLoader } from "../App";
 
 // Lazy-load route components (map default export to Route Module Component)
 const UserIndex = () =>
@@ -24,7 +24,12 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    loader: appLoader,
     children: [
+      {
+        path: "prolific-required",
+        lazy: () => import("./prolific-required").then((m) => ({ Component: m.default })),
+      },
       {
         path: "user",
         lazy: UserLayout,

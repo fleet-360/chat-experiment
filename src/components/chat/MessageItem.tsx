@@ -32,7 +32,7 @@ export default function MessageItem({
             {message.senderName || message.senderId}
           </span>
           {isAdmin && (
-            <span className="ml-2 text-[11px] rounded bg-secondary px-1.5 py-0.5 align-middle">
+            <span className="ms-2 text-[11px] rounded bg-secondary px-1.5 py-0.5 align-middle">
               {t("chat.admin")}
             </span>
           )}
