@@ -10,10 +10,12 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { ArrowLeft, Minus, Plus, Save } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLoaderData } from "react-router";
 import type { ChatGroupType } from "../../types/app";
 import { db } from "../../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import EmojiPickerButton from "../../components/chat/EmojiPickerButton";
+import { insertAtCaret as insertAtCaretUtil } from "../../components/chat/emojiUtils";
 
 type FormValues = {
   usersInGroup: number;
@@ -42,20 +44,13 @@ const fromSeconds = (secs: number): string => {
 };
 
 export default function AdminSettingsPage() {
+  const loaderDefaults = useLoaderData() as FormValues | null;
   const methods = useForm<FormValues>({
-    defaultValues: {
+    defaultValues: loaderDefaults ?? {
       usersInGroup: 4,
       totalDuration: "10:00",
-      messages: [
-        { groupType: "emojy", message: "message ❤", at: "00:00" },
-        { groupType: "noEmojy", message: "message", at: "00:00" },
-        { groupType: "emojy", message: "message ❤", at: "07:00" },
-        { groupType: "noEmojy", message: "message", at: "07:00" },
-      ],
-      timers: [
-        { time: "07:00" },
-        { time: "03:00" },
-      ],
+      messages: [],
+      timers: [],
     },
     mode: "onChange",
   });
@@ -66,7 +61,7 @@ export default function AdminSettingsPage() {
     handleSubmit,
     watch,
     setValue,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const messagesFa = useFieldArray({ control, name: "messages" });
@@ -80,6 +75,7 @@ export default function AdminSettingsPage() {
   // derived total in seconds available from current form value
 
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const messageRefs = useMemo(() => [] as (HTMLInputElement | null)[], []);
 
   const onAddMessage = () =>
     messagesFa.append({ groupType: "emojy", message: "", at: "00:00" });
@@ -91,9 +87,9 @@ export default function AdminSettingsPage() {
     const sum = values.timers.reduce((acc, t) => acc + toSeconds(t.time), 0);
     if (sum !== total) {
       setSaveMessage(
-        `Total timers (${fromSeconds(sum)}) must equal total duration (${fromSeconds(
-          total
-        )}).`
+        `Total timers (${fromSeconds(
+          sum
+        )}) must equal total duration (${fromSeconds(total)}).`
       );
       return;
     }
@@ -111,15 +107,15 @@ export default function AdminSettingsPage() {
       ChatTimersplan: values.timers.map((t) => ({ time: toSeconds(t.time) })),
       updatedAt: new Date().toISOString(),
     } as const;
-
+    console.log("payload", payload);
     // Persist to Firestore under experiments/exp1
     await setDoc(doc(db, "experiments", "exp1"), payload, { merge: true });
     setSaveMessage("Settings saved.");
   };
-
+  console.log("watch()", watch());
   return (
     <FormProvider {...methods}>
-      <Card className="p-4 space-y-6 max-w-2xl m-auto">
+      <Card className="p-4 space-y-6 max-w-2xl m-auto overflow-visible">
         <div className="flex items-center gap-3">
           <Link
             to="/admin/chat"
@@ -163,7 +159,7 @@ export default function AdminSettingsPage() {
 
           <section className="space-y-3">
             <h2 className="text-sm font-semibold">Chat Messages plan</h2>
-            <Card className="p-4 space-y-3 border rounded-md">
+            <Card className="p-4 space-y-3 border rounded-md overflow-visible">
               {messagesFa.fields.map((field, idx) => (
                 <div
                   key={field.id}
@@ -184,12 +180,30 @@ export default function AdminSettingsPage() {
                     </SelectContent>
                   </Select>
 
-                  <input
-                    type="text"
-                    placeholder="message"
-                    className="w-full rounded-md border px-3 py-2 text-sm bg-background"
-                    {...register(`messages.${idx}.message` as const)}
-                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder="message"
+                      className="w-full rounded-md border px-3 py-2 text-sm bg-background"
+                      {...register(`messages.${idx}.message` as const)}
+                   
+                      ref={(el) => {
+                        // let RHF handle ref
+                        register(`messages.${idx}.message`).ref(el);
+                        messageRefs[idx] = el;
+                      }}
+                    />
+                    <EmojiPickerButton
+                      onPick={(emoji) => {
+                        const current = watch(`messages.${idx}.message`) ?? "";
+                        const el = messageRefs[idx] ?? null;
+                        const next = insertAtCaretUtil(el, current, emoji);
+                        setValue(`messages.${idx}.message`, next, {
+                          shouldDirty: true,
+                        });
+                      }}
+                    />
+                  </div>
 
                   <input
                     type="text"
@@ -260,7 +274,6 @@ export default function AdminSettingsPage() {
           {saveMessage && (
             <div className="text-sm text-muted-foreground">{saveMessage}</div>
           )}
-
           <div className="pt-2">
             <Button type="submit" disabled={isSubmitting} className="min-w-40">
               <Save className="size-4" /> Save
@@ -270,4 +283,41 @@ export default function AdminSettingsPage() {
       </Card>
     </FormProvider>
   );
+}
+
+// Route loader: fetch current experiment settings and map to RHF defaults
+export async function loader() {
+  try {
+    const ref = doc(db, "experiments", "exp1");
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    const data: any = snap.data();
+    const settings = data?.settings || {};
+    const usersInGroup = Number(settings?.usersInGroup ?? 4);
+    const totalDuration = fromSeconds(Number(settings?.totalDuration ?? 600));
+    const messagesArr: any[] = Array.isArray(data?.ChatMessagesplan)
+      ? data.ChatMessagesplan
+      : [];
+    const timersArr: any[] = Array.isArray(data?.ChatTimersplan)
+      ? data.ChatTimersplan
+      : [];
+    const messages = messagesArr.map((m) => ({
+      groupType: (m?.groupType as ChatGroupType) ?? "emojy",
+      message: String(m?.message ?? ""),
+      at: fromSeconds(Number(m?.timeInChat ?? 0)),
+    }));
+    const timers = timersArr.map((t) => ({
+      time: fromSeconds(Number(t?.time ?? 0)),
+    }));
+    const result: FormValues = {
+      usersInGroup,
+      totalDuration,
+      messages,
+      timers,
+    };
+    return result;
+  } catch (e) {
+    console.error("settings loader failed", e);
+    return null;
+  }
 }

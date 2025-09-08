@@ -12,7 +12,7 @@ const UserThankYou = () =>
   import("./user/thank-you").then((m) => ({ Component: m.default }));
 
 const AdminSettings = () =>
-  import("./admin/settings").then((m) => ({ Component: m.default }));
+  import("./admin/settings").then((m) => ({ Component: m.default, loader: m.loader }));
 const AdminChat = () =>
   import("./admin/adminChat").then((m) => ({ Component: m.default,loader:m.loader }));
 

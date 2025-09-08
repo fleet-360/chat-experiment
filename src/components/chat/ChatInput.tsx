@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
-import { Smile, Send } from "lucide-react";
-import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
+import { Send } from "lucide-react";
+import EmojiPickerButton from "./EmojiPickerButton";
 import { useForm } from "react-hook-form";
 import { Switch } from "../ui/switch";
 
@@ -27,7 +27,6 @@ export default function ChatInput({
   const formRef = useRef<HTMLFormElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [showPicker, setShowPicker] = useState(false);
   const [sendAsAdmin, setSendAsAdmin] = useState(false);
 
   type FormValues = { text: string };
@@ -37,33 +36,21 @@ export default function ChatInput({
   const watchedText = watch("text");
 
 
-  // Close picker when clicking outside
-  useEffect(() => {
-    function onDocDown(e: MouseEvent) {
-      if (!containerRef.current) return;
-      if (e.target instanceof Node && containerRef.current.contains(e.target)) return;
-      setShowPicker(false);
-    }
-    if (showPicker) document.addEventListener("mousedown", onDocDown);
-    return () => document.removeEventListener("mousedown", onDocDown);
-  }, [showPicker]);
-
+  // caret insert helper reused elsewhere
   const insertAtCaret = (text: string) => {
     const el = textareaRef.current;
     const current = watchedText ?? "";
-    if (!el) {
-      setValue("text", current + text, { shouldDirty: true });
-      return;
-    }
-    const start = el.selectionStart ?? current.length;
-    const end = el.selectionEnd ?? start;
+    const start = el?.selectionStart ?? current.length;
+    const end = el?.selectionEnd ?? start;
     const next = current.slice(0, start) + text + current.slice(end);
     setValue("text", next, { shouldDirty: true });
     queueMicrotask(() => {
       try {
-        const pos = start + text.length;
-        el.setSelectionRange(pos, pos);
-        el.focus();
+        if (el) {
+          const pos = start + text.length;
+          el.setSelectionRange(pos, pos);
+          el.focus();
+        }
       } catch {}
     });
   };
@@ -73,7 +60,6 @@ export default function ChatInput({
     if (!v || disabled) return;
     reset({ text: "" });
     await onSend(v, { asAdmin: showAdminSwitch ? sendAsAdmin : false });
-    setShowPicker(false);
     textareaRef.current?.focus();
   };
 
@@ -105,38 +91,11 @@ export default function ChatInput({
           );
         })()}
         <div className="flex items-center gap-1 ms-2">
-          <div className="relative">
-            {withEmojy && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                title={t("chat.emojiPicker", { defaultValue: "emoji picker" })}
-                onClick={() => setShowPicker((s) => !s)}
-                className="rounded-full"
-                aria-expanded={showPicker}
-                aria-haspopup="dialog"
-              >
-                <Smile className="size-5" />
-              </Button>
-            )}
-            {showPicker && (
-              <div className="absolute z-50 end-0 bottom-full mb-2 shadow-sm rounded-xl overflow-hidden border bg-background">
-                <EmojiPicker
-                  onEmojiClick={(emoji) => {
-                    insertAtCaret(emoji.emoji);
-                    setShowPicker(false);
-                  }}
-                  autoFocusSearch={false}
-                  width={320}
-                  height={380}
-                  skinTonesDisabled
-                  lazyLoadEmojis
-                  emojiStyle={EmojiStyle.APPLE}
-                />
-              </div>
-            )}
-          </div>
+          {withEmojy && (
+            <EmojiPickerButton
+              onPick={(e) => insertAtCaret(e)}
+            />
+          )}
           {showAdminSwitch && (
             <label className="flex items-center gap-2 text-xs text-muted-foreground me-1 select-none">
               <span>{sendAsAdmin ? t("admin.admin", { defaultValue: "Admin" }) : t("common.user", { defaultValue: "User" })}</span>
