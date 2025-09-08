@@ -6,6 +6,8 @@ import { useExperiment } from "../../context/ExperimentContext";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { db } from "../../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { Button } from "../../components/ui/button";
+import { useAdminAutomationScheduler } from "../../services/adminAutomation";
 
 export default function AdminChat() {
   const { experimentId } = useExperiment();
@@ -58,6 +60,7 @@ export default function AdminChat() {
 
   return (
     <div className="p-4">
+
       <div className="grid gap-4 md:grid-cols-[280px_1fr]">
         <AdminSidebar
           groups={groups || []}

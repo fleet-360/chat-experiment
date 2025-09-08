@@ -16,6 +16,7 @@ import EmojiPickerButton from "../../components/chat/EmojiPickerButton";
 import { insertAtCaret as insertAtCaretUtil } from "../../components/chat/emojiUtils";
 import { fromSeconds, toSeconds } from "../../lib/helpers/dateTime.helper";
 import { useExperiment } from "../../context/ExperimentContext";
+import { saveExperementSettings } from "../../services/experimentService";
 
 export type FormValues = {
   usersInGroup: number;
@@ -77,6 +78,7 @@ export default function AdminSettingsPage() {
       return;
     }
     experiment.refresh()
+    await saveExperementSettings(experiment.experimentId, values, total);
     setSaveMessage("Settings saved.");
   };
   

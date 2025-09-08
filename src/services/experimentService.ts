@@ -1,4 +1,4 @@
-import { doc, updateDoc, getDoc, setDoc, getDocs, where, query, collection, onSnapshot, type Unsubscribe } from "firebase/firestore";
+import { doc, updateDoc, getDoc, setDoc, getDocs, where, query, collection, onSnapshot, runTransaction, Timestamp, type Unsubscribe } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { SurveyAnswersPayload } from "../types/app";
 import type { FormValues } from "../routes/admin/settings";
@@ -79,7 +79,7 @@ export async function saveExperementSettings(
 /** Listen to groups under an experiment; returns Unsubscribe. */
 export function listenExperimentGroups(
   expId: string,
-  onChange: (groups: { groupId: string; groupName: string; users?: string[] }[]) => void
+  onChange: (groups: { groupId: string; groupName: string; users?: string[]; groupType?: string; createdAt?: any }[]) => void
 ): Unsubscribe {
   const q = query(collection(db, "groups"), where("experimentId", "==", expId));
   return onSnapshot(q, (snap) => {
@@ -87,7 +87,65 @@ export function listenExperimentGroups(
       groupId: d.id,
       groupName: (d.data() as any).name,
       users: (d.data() as any).users ?? [],
+      groupType: (d.data() as any).groupType,
+      createdAt: (d.data() as any).createdAt,
     }));
     onChange(list);
   });
+}
+
+/** Transactionally send an admin message once per plan item. */
+function sanitizeKey(v: string): string {
+  return String(v).replace(/[^a-zA-Z0-9_-]/g, "_");
+}
+
+export async function sendAdminMessageOnce(
+  groupId: string,
+  text: string,
+  options?: { planVersion?: string; planIndex?: number }
+): Promise<boolean> {
+  const ref = doc(db, "groups", groupId);
+  const planVersion = sanitizeKey(options?.planVersion ?? "default");
+  const planIndex = options?.planIndex ?? -1;
+  const markerPath = `automation.sent.${planVersion}.${planIndex}`;
+  const messageId = `${planVersion}:${planIndex}`;
+
+  const res = await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const data = (snap.data() as any) || {};
+    // If message already present (e.g., from another admin), mark and skip
+    const hasMessage = Array.isArray(data.messages)
+      ? data.messages.some((m: any) => m?.messageId === messageId)
+      : false;
+    const already = !!markerPath
+      .split(".")
+      .reduce((acc: any, key) => (acc && acc[key] != null ? acc[key] : undefined), data);
+    if (already || hasMessage) {
+      // Ensure marker exists if message exists
+      if (!already && hasMessage) {
+        const automation = { ...(data.automation || {}) };
+        automation.sent = automation.sent || {};
+        automation.sent[planVersion] = automation.sent[planVersion] || {};
+        automation.sent[planVersion][String(planIndex)] = true;
+        tx.set(ref, { automation }, { merge: true });
+      }
+      return false;
+    }
+    const messages = Array.isArray(data.messages) ? data.messages.slice() : [];
+    messages.push({
+      senderId: "admin",
+      senderName: "admin",
+      isAdmin: true,
+      createdAt: Timestamp.now(),
+      text,
+      messageId,
+    });
+    const automation = { ...(data.automation || {}) };
+    automation.sent = automation.sent || {};
+    automation.sent[planVersion] = automation.sent[planVersion] || {};
+    automation.sent[planVersion][String(planIndex)] = true;
+    tx.set(ref, { messages, automation }, { merge: true });
+    return true;
+  });
+  return res;
 }

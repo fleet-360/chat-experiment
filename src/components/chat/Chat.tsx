@@ -24,6 +24,7 @@ import { ElapsedTimer } from "./ElapsedTimer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { toDate } from "../../lib/helpers/dateTime.helper";
 import { useExperiment } from "../../context/ExperimentContext";
+import { useAdminAutomationScheduler } from "../../services/adminAutomation";
 
 export type ChatProps = {
   groupId: string;
@@ -47,6 +48,8 @@ export default function Chat({
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const isAtBottomRef = useRef(true);
   const navigate = useNavigate();
+  useAdminAutomationScheduler();
+
 
   useEffect(() => {
     if (!groupId) return;
