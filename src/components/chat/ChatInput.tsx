@@ -4,13 +4,15 @@ import { Button } from "../ui/button";
 import { Smile, Send } from "lucide-react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { useForm } from "react-hook-form";
+import { Switch } from "../ui/switch";
 
 type ChatInputProps = {
   disabled?: boolean;
-  onSend: (message:string) => Promise<void> | void;
+  onSend: (message: string, options?: { asAdmin?: boolean }) => Promise<void> | void;
   placeholder?: string;
   className?: string;
-  withEmojy?:boolean
+  withEmojy?: boolean;
+  showAdminSwitch?: boolean;
 };
 
 export default function ChatInput({
@@ -18,13 +20,15 @@ export default function ChatInput({
   onSend,
   placeholder,
   className,
-  withEmojy=true
+  withEmojy = true,
+  showAdminSwitch = false,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [sendAsAdmin, setSendAsAdmin] = useState(false);
 
   type FormValues = { text: string };
   const { register, handleSubmit, setValue, watch, reset,formState } = useForm<FormValues>({
@@ -68,7 +72,7 @@ export default function ChatInput({
     const v = (watchedText ?? "").trim();
     if (!v || disabled) return;
     reset({ text: "" });
-    await onSend(v);
+    await onSend(v, { asAdmin: showAdminSwitch ? sendAsAdmin : false });
     setShowPicker(false);
     textareaRef.current?.focus();
   };
@@ -102,18 +106,20 @@ export default function ChatInput({
         })()}
         <div className="flex items-center gap-1 ms-2">
           <div className="relative">
-            {withEmojy&&<Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              title="emoji picker"
-              onClick={() => setShowPicker((s) => !s)}
-              className="rounded-full"
-              aria-expanded={showPicker}
-              aria-haspopup="dialog"
-            >
-              <Smile className="size-5" />
-            </Button>}
+            {withEmojy && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                title={t("chat.emojiPicker", { defaultValue: "emoji picker" })}
+                onClick={() => setShowPicker((s) => !s)}
+                className="rounded-full"
+                aria-expanded={showPicker}
+                aria-haspopup="dialog"
+              >
+                <Smile className="size-5" />
+              </Button>
+            )}
             {showPicker && (
               <div className="absolute z-50 end-0 bottom-full mb-2 shadow-sm rounded-xl overflow-hidden border bg-background">
                 <EmojiPicker
@@ -131,10 +137,22 @@ export default function ChatInput({
               </div>
             )}
           </div>
+          {showAdminSwitch && (
+            <label className="flex items-center gap-2 text-xs text-muted-foreground me-1 select-none">
+              <span>{sendAsAdmin ? t("admin.admin", { defaultValue: "Admin" }) : t("common.user", { defaultValue: "User" })}</span>
+              <Switch
+                checked={sendAsAdmin}
+                onCheckedChange={setSendAsAdmin}
+                aria-label="Send as admin"
+              />
+            </label>
+          )}
           <Button
             type="submit"
             size="icon"
-            disabled={disabled || !(watchedText ?? "").trim() || formState.isSubmitting}
+            disabled={
+              disabled || !(watchedText ?? "").trim() || formState.isSubmitting
+            }
             className="rounded-full"
             title={t("chat.send")}
           >

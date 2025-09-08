@@ -186,7 +186,8 @@ export default function Chat({ groupId, className, isAdmin = false }: ChatProps)
       <CardFooter>
         <ChatInput
           placeholder={t("chat.placeholder")}
-          onSend={async (value) => {
+          showAdminSwitch={isAdmin}
+          onSend={async (value, opts) => {
             value = value.trim();
             if (!value) return;
             if (!groupId) return;
@@ -198,14 +199,16 @@ export default function Chat({ groupId, className, isAdmin = false }: ChatProps)
               const userIndex = group?.users?.findIndex(
                 (id: string) => id == senderId
               );
-              const senderName =isAdmin?"admin":
-                "user-" + (userIndex ? userIndex + 1 : "unknoun");
+              const asAdmin = !!opts?.asAdmin && isAdmin;
+              const senderName = asAdmin
+                ? "admin"
+                : "user-" + (userIndex ? userIndex + 1 : group?.users?.length??0+1);
               const gRef = doc(db, "groups", groupId);
               await updateDoc(gRef, {
                 messages: arrayUnion({
                   senderId,
                   senderName,
-                  isAdmin: isAdmin,
+                  isAdmin: asAdmin,
                   createdAt: Timestamp.now(),
                   text: value,
                 }),

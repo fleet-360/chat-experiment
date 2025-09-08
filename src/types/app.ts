@@ -24,6 +24,7 @@ export interface Experiment {
   settings: ExperimentSettings;
   ChatMessagesplan: ChatMessagePlanItem[];
   ChatTimersplan: ChatTimerPlanItem[];
+  name:string
 }
 
 export interface GroupMessage {
