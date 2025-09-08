@@ -76,7 +76,7 @@ export default function AdminSettingsPage() {
       );
       return;
     }
-
+    experiment.refresh()
     setSaveMessage("Settings saved.");
   };
   
@@ -253,7 +253,8 @@ export default function AdminSettingsPage() {
 }
 
 // Route loader: fetch current experiment settings and map to RHF defaults
-export function formatSettings(data : Experiment) {
+export function formatSettings(data : Experiment | null | undefined) {
+    if (!data) return null as any;
  
     const settings = data?.settings || {};
     const usersInGroup = Number(settings?.usersInGroup ?? 4);

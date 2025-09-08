@@ -1,4 +1,4 @@
-import { doc, updateDoc, getDoc, setDoc, getDocs, where, query, collection } from "firebase/firestore";
+import { doc, updateDoc, getDoc, setDoc, getDocs, where, query, collection, onSnapshot, type Unsubscribe } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { SurveyAnswersPayload } from "../types/app";
 import type { FormValues } from "../routes/admin/settings";
@@ -12,7 +12,7 @@ import { toSeconds } from "../lib/helpers/dateTime.helper";
 export async function saveSurveyAnswers(
   userId: string,
   answers: Record<string, unknown>,
-  experimentId: string 
+  experimentId: string = "exp1"
 ) {
   const expRef = doc(db, "experiments", experimentId);
   const payload: SurveyAnswersPayload = {
@@ -74,4 +74,20 @@ export async function saveExperementSettings(
 
   // Persist to Firestore under experiments
   await setDoc(doc(db, "experiments", expId), payload, { merge: true });
+}
+
+/** Listen to groups under an experiment; returns Unsubscribe. */
+export function listenExperimentGroups(
+  expId: string,
+  onChange: (groups: { groupId: string; groupName: string; users?: string[] }[]) => void
+): Unsubscribe {
+  const q = query(collection(db, "groups"), where("experimentId", "==", expId));
+  return onSnapshot(q, (snap) => {
+    const list = snap.docs.map((d) => ({
+      groupId: d.id,
+      groupName: (d.data() as any).name,
+      users: (d.data() as any).users ?? [],
+    }));
+    onChange(list);
+  });
 }

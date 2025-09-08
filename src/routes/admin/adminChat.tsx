@@ -1,23 +1,17 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Chat from "../../components/chat/Chat";
-import { getAllExperimentGroups } from "../../services/experimentService";
-import { useLoaderData } from "react-router";
+import { listenExperimentGroups } from "../../services/experimentService";
+import { useExperiment } from "../../context/ExperimentContext";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { db } from "../../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
-export async function loader() {
-  return { groups: await getAllExperimentGroups("exp1"), expName: "exp1" };
-}
-
 export default function AdminChat() {
-  const data = useLoaderData() as {
-    groups: { groupId: string; groupName: string; users?: string[] }[];
-    expName: string;
-  };
-
-  const { groups, expName } = !!data ? data : { groups: [], expName: "" };
+  const { experimentId } = useExperiment();
+  const [groups, setGroups] = useState<
+    { groupId: string; groupName: string; users?: string[] }[]
+  >([]);
 
   const { t } = useTranslation();
   const [selected, setSelected] = useState<string | undefined>(
@@ -25,8 +19,12 @@ export default function AdminChat() {
   );
 
   useEffect(() => {
-    if (!selected && groups?.length) setSelected(groups[0].groupId);
-  }, [groups, selected]);
+    const unsub = listenExperimentGroups(experimentId, (list) => {
+      setGroups(list);
+      if (!selected && list?.length) setSelected(list[0].groupId);
+    });
+    return () => unsub();
+  }, [experimentId, selected]);
 
   const onExportAll = async () => {
     try {
@@ -66,7 +64,7 @@ export default function AdminChat() {
           value={selected}
           onChange={setSelected}
           onExportAll={onExportAll}
-          experimentName={expName}
+          experimentName={experimentId}
         />
         {selected ? (
           <Chat groupId={selected} isAdmin={true} />

@@ -23,9 +23,6 @@ export function ElapsedTimer({
     () => (Array.isArray(timers) ? timers.filter((n) => n > 0) : []),
     [timers]
   );
-  const [index, setIndex] = useState(0);
-  const [remaining, setRemaining] = useState<number>(normalized[0] ?? 0);
-  const intervalRef = useRef<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const startMs = useMemo(() => {
     if (start instanceof Date) return start.getTime();
@@ -34,45 +31,51 @@ export function ElapsedTimer({
       return (start as any).seconds * 1000;
     return Date.now();
   }, [start]);
+  const lastIndexRef = useRef<number>(-1);
+  const completedRef = useRef<boolean>(false);
 
-  // Reset when timers change
-  useEffect(() => {
-    setIndex(0);
-    setRemaining(normalized[0] ?? 0);
-  }, [normalized]);
+  // nothing to reset: derived from start + now
 
-  // Tick logic: if timers provided => countdown; else => elapsed since start
+  // Tick logic: always update "now" every second when autoStart
   useEffect(() => {
-    if (normalized.length > 0) {
-      if (!autoStart) return;
-      if (intervalRef.current) window.clearInterval(intervalRef.current);
-      intervalRef.current = window.setInterval(() => {
-        setRemaining((prev) => {
-          if (prev > 1) return prev - 1;
-          // segment finished
-          if (index < normalized.length - 1) {
-            const nextIndex = index + 1;
-            setIndex(nextIndex);
-            onSegmentChange?.(nextIndex);
-            return normalized[nextIndex] ?? 0;
-          } else {
-            if (intervalRef.current) window.clearInterval(intervalRef.current);
-            intervalRef.current = null;
-            onComplete?.();
-            return 0;
-          }
-        });
-      }, 1000);
-      return () => {
-        if (intervalRef.current) window.clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      };
-    } else {
-      // elapsed mode
-      const id = window.setInterval(() => setNow(Date.now()), 1000);
-      return () => window.clearInterval(id);
+    if (!autoStart) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [autoStart]);
+
+  // Compute remaining based on start + elapsed across segments if timers provided
+  const elapsedSecs = Math.max(0, Math.floor((now - startMs) / 1000));
+  // total plan could be used for progress; computed on the fly when needed
+
+  let activeIndex = -1;
+  let remaining = 0;
+  if (normalized.length > 0) {
+    let acc = 0;
+    for (let i = 0; i < normalized.length; i++) {
+      const seg = normalized[i] ?? 0;
+      if (elapsedSecs < acc + seg) {
+        activeIndex = i;
+        remaining = acc + seg - elapsedSecs;
+        break;
+      }
+      acc += seg;
     }
-  }, [autoStart, index, normalized, onComplete, onSegmentChange, startMs]);
+    if (activeIndex === -1) {
+      // plan finished
+      remaining = 0;
+      if (!completedRef.current) {
+        onComplete?.();
+        completedRef.current = true;
+      }
+    } else {
+      // segment changed detection
+      if (lastIndexRef.current !== activeIndex) {
+        lastIndexRef.current = activeIndex;
+        completedRef.current = false;
+        onSegmentChange?.(activeIndex);
+      }
+    }
+  }
 
   // Format label
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -81,12 +84,9 @@ export function ElapsedTimer({
     const hours = Math.floor(remaining / 3600);
     const minutes = Math.floor((remaining % 3600) / 60);
     const seconds = remaining % 60;
-    label = `${withHours || hours > 0 ? pad(hours) + ":" : ""}${pad(
-      minutes
-    )}:${pad(seconds)}`;
+    label = `${withHours || hours > 0 ? pad(hours) + ":" : ""}${pad(minutes)}:${pad(seconds)}`;
   } else {
-    const diff = Math.max(0, now - startMs);
-    const total = Math.floor(diff / 1000);
+    const total = elapsedSecs;
     const h = Math.floor(total / 3600);
     const m = Math.floor((total % 3600) / 60);
     const s = total % 60;
