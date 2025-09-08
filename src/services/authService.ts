@@ -71,6 +71,7 @@ const decideAboutUserGroups = async (userId: string) => {
     if (!chosenGroupId) {
       const newGroupRef = await addDoc(collection(db, "groups"), {
         users: [userId],
+        experimentId:expRef.id,
         groupType:groups.length%2==0 ?"emojy": "noEmojy",
         messages:[],
         name:`group-${groups.length}`,

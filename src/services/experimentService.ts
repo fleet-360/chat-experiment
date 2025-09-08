@@ -1,11 +1,7 @@
-import { doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, setDoc, getDocs, where, query, collection } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import type { SurveyAnswersPayload } from "../types/app";
 
-export type SurveyAnswersPayload = {
-  userId: string;
-  createdAt: Date;
-  answers: Record<string, unknown>;
-};
 
 /**
  * Append a user's survey answers to an experiment document under `surveyAnswers` array.
@@ -31,4 +27,13 @@ export async function saveSurveyAnswers(
   const current: any[] = Array.isArray(data?.surveyAnswers) ? data.surveyAnswers : [];
   const filtered = current.filter((entry) => entry && entry.userId !== userId);
   await updateDoc(expRef, { surveyAnswers: [...filtered, payload] });
+}
+
+export async function getAllExperimentGroups(expId:string ) {
+  
+
+ const groupsRef = query(collection(db, "groups"), where("experimentId", "==", expId));
+ const groupsDocs = await getDocs(groupsRef);
+
+return groupsDocs.docs.map((doc) => ({ groupId: doc.id, groupName:doc.data().name }));
 }

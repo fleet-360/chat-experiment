@@ -14,7 +14,7 @@ const UserThankYou = () =>
 const AdminSettings = () =>
   import("./admin/settings").then((m) => ({ Component: m.default }));
 const AdminChat = () =>
-  import("./admin/adminChat").then((m) => ({ Component: m.default }));
+  import("./admin/adminChat").then((m) => ({ Component: m.default,loader:m.loader }));
 
 // Layouts
 const UserLayout = () =>

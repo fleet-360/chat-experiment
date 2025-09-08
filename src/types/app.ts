@@ -40,6 +40,7 @@ export interface Group {
   name: string;
   messages: GroupMessage[];
   createdAt: Date;
+  experimentId:string
 }
 
 export interface UserProfile {
@@ -51,3 +52,8 @@ export interface UserProfile {
   language: string;
 }
 
+export type SurveyAnswersPayload = {
+  userId: string;
+  createdAt: Date;
+  answers: Record<string, unknown>;
+};

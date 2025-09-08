@@ -26,10 +26,11 @@ export type ChatProps = {
   groupId: string;
   title?: string;
   className?: string;
+  isAdmin:boolean
 };
 
 
-export default function Chat({ groupId, className }: ChatProps) {
+export default function Chat({ groupId, className,isAdmin=false }: ChatProps) {
   const [messages, setMessages] = useState<
     (GroupMessage & { text?: string })[]
   >([]);
@@ -105,13 +106,20 @@ export default function Chat({ groupId, className }: ChatProps) {
   }, [group?.createdAt, messages]);
 
   return (
-    <Card className={className} >
-      <CardHeader className="bg-muted border-b-2 " >
+    <Card className={className}>
+      <CardHeader className="bg-muted border-b-2 ">
         <div className="flex items-center justify-between gap-3 pb-4">
-          <CardTitle>{headerTitle}</CardTitle>
+          <CardTitle>
+            {headerTitle}<br/>
+            <span className="text-muted-foreground text-sm">{isAdmin && group?.users.map(id=>`PROLIFIC_ID-${id}`).join(", ")}</span>
+          </CardTitle>
+
           <div className="flex items-center gap-2">
             {startDate ? (
-              <ElapsedTimer start={startDate} className="text-sm text-muted-foreground" />
+              <ElapsedTimer
+                start={startDate}
+                className="text-sm text-muted-foreground"
+              />
             ) : null}
             <Button
               size="sm"
@@ -168,8 +176,11 @@ export default function Chat({ groupId, className }: ChatProps) {
                 (typeof window !== "undefined" &&
                   localStorage.getItem("userId")) ||
                 "anonymous";
-                const userIndex=group?.users?.findIndex((id:string)=>id ==senderId )
-              const senderName ="user-"+(userIndex?userIndex+1:"unknoun")
+              const userIndex = group?.users?.findIndex(
+                (id: string) => id == senderId
+              );
+              const senderName =
+                "user-" + (userIndex ? userIndex + 1 : "unknoun");
               const gRef = doc(db, "groups", groupId);
               await updateDoc(gRef, {
                 messages: arrayUnion({
@@ -182,7 +193,7 @@ export default function Chat({ groupId, className }: ChatProps) {
               });
             } catch (err) {
               console.error("Failed to send message", err);
-            } 
+            }
           }}
           withEmojy={group?.groupType !== "noEmojy"}
           className="w-full"
