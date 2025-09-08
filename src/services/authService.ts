@@ -83,18 +83,18 @@ const decideAboutUserGroups = async (userId: string) => {
     }
 
     // If the chosen group is now full, create a new empty group and unshift it
-    if (becameFull) {
-      const newGroupRef = await addDoc(collection(db, "groups"), {
-        users: [],
-        groupType: groups.length % 2 == 0 ? "emojy" : "noEmojy",
-        messages: [],
-        name: `group-${groups.length}`,
-        id: `exp-${expRef.id}-group-${groups.length}`,
-        createdAt: serverTimestamp(),
-      });
-      const newGroups = [...groups, newGroupRef.id];
-      await updateDoc(expRef, { groups: newGroups });
-    }
+    // if (becameFull) {
+    //   const newGroupRef = await addDoc(collection(db, "groups"), {
+    //     users: [],
+    //     groupType: groups.length % 2 == 0 ? "emojy" : "noEmojy",
+    //     messages: [],
+    //     name: `group-${groups.length}`,
+    //     id: `exp-${expRef.id}-group-${groups.length}`,
+    //     createdAt: serverTimestamp(),
+    //   });
+    //   const newGroups = [...groups, newGroupRef.id];
+    //   await updateDoc(expRef, { groups: newGroups });
+    // }
 
     return chosenGroupId;
   } catch (error) {

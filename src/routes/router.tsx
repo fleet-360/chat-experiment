@@ -8,6 +8,8 @@ const UserChat = () =>
   import("./user/chat").then((m) => ({ Component: m.default ,loader:m.loader}));
 const UserQuestions = () =>
   import("./user/survey").then((m) => ({ Component: m.default }));
+const UserThankYou = () =>
+  import("./user/thank-you").then((m) => ({ Component: m.default }));
 
 const AdminSettings = () =>
   import("./admin/settings").then((m) => ({ Component: m.default }));
@@ -37,6 +39,7 @@ export const router = createBrowserRouter([
           { index: true, lazy: UserIndex },
           { path: "chat", lazy: UserChat },
           { path: "survey", lazy: UserQuestions },
+          { path: "thank-you", lazy: UserThankYou },
         ],
       },
       {

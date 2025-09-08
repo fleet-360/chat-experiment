@@ -1,8 +1,11 @@
 import { useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { saveSurveyAnswers } from "../../services/experimentService";
+import { useNavigate } from "react-router";
 
 type FormValues = Record<string, number | string> & {
   gender?: string;
@@ -33,14 +36,20 @@ type SemanticConfig = {
 
 export default function SurveyPage() {
   const { t } = useTranslation();
-  const { register, handleSubmit } = useForm<FormValues>({
+  const navigate = useNavigate();
+  const { register, handleSubmit, control } = useForm<FormValues>({
     defaultValues: {},
   });
 
-  const submit = (data: FormValues) => {
-    // TODO: wire to backend if desired
-    console.log("survey submit", data);
-    alert(t("survey.submitted", { defaultValue: "Thanks! Your responses were recorded." }));
+  const submit = async (data: FormValues) => {
+    try {
+      const userId = (typeof window !== "undefined" && localStorage.getItem("userId")) || "anonymous";
+      await saveSurveyAnswers(userId, data as Record<string, unknown>);
+      navigate("/user/thank-you");
+    } catch (e) {
+      console.error("Failed to save survey answers", e);
+      alert("Failed to save. Please try again.");
+    }
   };
 
   const likert = (
@@ -248,25 +257,50 @@ export default function SurveyPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm mb-1">
-                  {t("survey.gender", { defaultValue: "Please select your gender" })}
+                  {t("survey.gender", {
+                    defaultValue: "Please select your gender",
+                  })}
                 </label>
-                <select
-                  className="w-full border rounded-md px-3 py-2 bg-background"
-                  {...register("gender")}
-                >
-                  <option value="">
-                    {t("survey.chooseOption", { defaultValue: "Choose an option" })}
-                  </option>
-                  <option value="female">{t("survey.genderFemale", { defaultValue: "Female" })}</option>
-                  <option value="male">{t("survey.genderMale", { defaultValue: "Male" })}</option>
-                  <option value="nonbinary">{t("survey.genderNonBinary", { defaultValue: "Non-binary" })}</option>
-                  <option value="prefer_not_say">{t("survey.genderPreferNotSay", { defaultValue: "Prefer not to say" })}</option>
-                  <option value="other">{t("survey.genderOther", { defaultValue: "Other" })}</option>
-                </select>
+                <Controller
+                  name="gender"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={(field.value as string) ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={t("survey.chooseOption", {
+                            defaultValue: "Choose an option",
+                          })}
+                        />
+                      </SelectTrigger>
+                      <SelectContent >
+                        <SelectItem value="female">
+                          {t("survey.genderFemale", { defaultValue: "Female" })}
+                        </SelectItem>
+                        <SelectItem value="male">
+                          {t("survey.genderMale", { defaultValue: "Male" })}
+                        </SelectItem>
+                        <SelectItem value="prefer_not_say">
+                          {t("survey.genderPreferNotSay", {
+                            defaultValue: "Prefer not to say",
+                          })}
+                        </SelectItem>
+                        <SelectItem value="other">
+                          {t("survey.genderOther", { defaultValue: "Other" })}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
               <div>
                 <label className="block text-sm mb-1">
-                  {t("survey.age", { defaultValue: "Please indicate your age" })}
+                  {t("survey.age", {
+                    defaultValue: "Please indicate your age",
+                  })}
                 </label>
                 <input
                   type="number"
@@ -305,8 +339,8 @@ function LikertRow({
 }) {
   const options = Array.from({ length: scale }, (_, i) => i + 1);
   return (
-    <div className="space-y-2">
-      <div className="text-sm font-medium">{label}</div>
+    <div className="space-y-3">
+      <div className="text-sm font-medium mb-3">{label}</div>
       <div className="flex items-center gap-2">
         <div className="text-xs text-muted-foreground w-28 shrink-0 text-start">
           {leftLabel}
