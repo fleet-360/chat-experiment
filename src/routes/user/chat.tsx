@@ -7,10 +7,11 @@ import { postOrGetUserId } from "../../services/authService";
 // Route data loader
 export async function loader() {
   const userId = localStorage.getItem('userId')
-  if (!userId) {
+  const expId = localStorage.getItem('expId')
+  if (!userId || !expId) {
     return null;
   }
-  return postOrGetUserId(userId);
+  return postOrGetUserId(userId, expId);
 }
 
 export default function UserChat() {

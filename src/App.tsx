@@ -1,18 +1,22 @@
 import "./App.css";
-import { Outlet, redirect } from "react-router";
-import LanguageSwitcher from "./components/LanguageSwitcher";
+import { Outlet, redirect, useLoaderData } from "react-router";
+import { ExperimentProvider } from "./context/ExperimentContext";
+import { getExperiment } from "./services/experimentService";
 
 function App() {
+  const data = useLoaderData() as { experimentId: string; experiment: any } | null;
+  const experimentId = data?.experimentId??"" ;
+  const initial = data?.experiment ?? null;
   return (
-    <>
-      <div className="p-4 text-xl font-semibold flex items-center gap-4">
-        {/* <div>{t("app.title")}</div> */}
+    <ExperimentProvider experimentId={experimentId} initialData={initial}>
+      {/* <div className="p-4 text-xl font-semibold flex items-center gap-4">
+        <div>{t("app.title")}</div>
         <div className="ms-auto">
           <LanguageSwitcher />
         </div>
-      </div>
+      </div> */}
       <Outlet />
-    </>
+    </ExperimentProvider>
   );
 }
 
@@ -30,12 +34,15 @@ export async function loader({ request }: { request: Request }) {
   }
 
   if (prolifId) {
-    try {
-      // Store under existing key used across the app
       localStorage.setItem("userId", prolifId);
-    } catch (_) {
-      // ignore storage failures
-    }
   }
-  return null;
+  // Prefetch current experiment
+  const experimentId = "exp1";
+
+  if (experimentId) {
+      localStorage.setItem("expId", experimentId);
+    
+  }
+  const experiment = await getExperiment(experimentId);
+  return { experimentId, experiment };
 }

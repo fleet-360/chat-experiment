@@ -22,6 +22,8 @@ import { Button } from "../ui/button";
 import { useNavigate } from "react-router";
 import { ElapsedTimer } from "./ElapsedTimer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { toDate } from "../../lib/helpers/dateTime.helper";
+import { useExperiment } from "../../context/ExperimentContext";
 
 export type ChatProps = {
   groupId: string;
@@ -30,11 +32,15 @@ export type ChatProps = {
   isAdmin?: boolean;
 };
 
-
-export default function Chat({ groupId, className, isAdmin = false }: ChatProps) {
+export default function Chat({
+  groupId,
+  className,
+  isAdmin = false,
+}: ChatProps) {
   const [messages, setMessages] = useState<
     (GroupMessage & { text?: string })[]
   >([]);
+  const experiment = useExperiment()
   const [group, setGroup] = useState<Group | undefined>(undefined);
   const { t } = useTranslation();
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -87,13 +93,6 @@ export default function Chat({ groupId, className, isAdmin = false }: ChatProps)
 
   // Derive a reasonable start time: prefer group's createdAt, otherwise first message time
   const startDate = useMemo(() => {
-    const toDate = (v: any): Date | null => {
-      if (!v) return null;
-      if (v instanceof Date) return v;
-      if (typeof v === "object" && typeof v.seconds === "number") return new Date(v.seconds * 1000);
-      if (typeof v === "number") return new Date(v);
-      return null;
-    };
     if (group?.createdAt) return toDate(group.createdAt);
     let min: number | null = null;
     for (const m of messages) {
@@ -136,7 +135,8 @@ export default function Chat({ groupId, className, isAdmin = false }: ChatProps)
           <div className="flex items-center gap-2">
             {startDate ? (
               <ElapsedTimer
-                start={startDate}
+              start={startDate}
+              timers={experiment.data?.ChatTimersplan.map((timer)=>timer.time)}
                 className="text-sm text-muted-foreground"
               />
             ) : null}
@@ -164,18 +164,8 @@ export default function Chat({ groupId, className, isAdmin = false }: ChatProps)
             messages
               .slice()
               .sort((a, b) => {
-                const ta =
-                  (a.createdAt as unknown as { seconds?: number } | Date) ?? 0;
-                const tb =
-                  (b.createdAt as unknown as { seconds?: number } | Date) ?? 0;
-                const va =
-                  typeof ta === "object" && "seconds" in (ta as any)
-                    ? (ta as any).seconds!
-                    : (ta as Date).getTime?.() ?? 0;
-                const vb =
-                  typeof tb === "object" && "seconds" in (tb as any)
-                    ? (tb as any).seconds!
-                    : (tb as Date).getTime?.() ?? 0;
+                const va = toDate(a.createdAt)?.getTime?.() ?? 0;
+                const vb = toDate(b.createdAt)?.getTime?.() ?? 0;
                 return va - vb;
               })
               .map((m, idx) => <MessageItem key={idx} message={m} />)
@@ -202,7 +192,8 @@ export default function Chat({ groupId, className, isAdmin = false }: ChatProps)
               const asAdmin = !!opts?.asAdmin && isAdmin;
               const senderName = asAdmin
                 ? "admin"
-                : "user-" + (userIndex ? userIndex + 1 : group?.users?.length??0+1);
+                : "user-" +
+                  (userIndex ? userIndex + 1 : group?.users?.length ?? 0 + 1);
               const gRef = doc(db, "groups", groupId);
               await updateDoc(gRef, {
                 messages: arrayUnion({

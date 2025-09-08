@@ -10,41 +10,24 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { ArrowLeft, Minus, Plus, Save } from "lucide-react";
-import { Link, useLoaderData } from "react-router";
-import type { ChatGroupType } from "../../types/app";
-import { db } from "../../lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { Link } from "react-router";
+import type { ChatGroupType, Experiment } from "../../types/app";
 import EmojiPickerButton from "../../components/chat/EmojiPickerButton";
 import { insertAtCaret as insertAtCaretUtil } from "../../components/chat/emojiUtils";
+import { fromSeconds, toSeconds } from "../../lib/helpers/dateTime.helper";
+import { useExperiment } from "../../context/ExperimentContext";
 
-type FormValues = {
+export type FormValues = {
   usersInGroup: number;
   totalDuration: string; // mm:ss
   messages: { groupType: ChatGroupType; message: string; at: string }[]; // at in mm:ss
   timers: { time: string }[]; // time in mm:ss
 };
 
-const toSeconds = (mmss: string): number => {
-  const m = /^\s*(\d{1,2}):(\d{2})\s*$/.exec(mmss || "");
-  if (!m) return 0;
-  const minutes = parseInt(m[1]!, 10);
-  const seconds = parseInt(m[2]!, 10);
-  return minutes * 60 + seconds;
-};
-
-const fromSeconds = (secs: number): string => {
-  if (!secs || secs < 0) secs = 0;
-  const m = Math.floor(secs / 60)
-    .toString()
-    .padStart(2, "0");
-  const s = Math.floor(secs % 60)
-    .toString()
-    .padStart(2, "0");
-  return `${m}:${s}`;
-};
 
 export default function AdminSettingsPage() {
-  const loaderDefaults = useLoaderData() as FormValues | null;
+  const experiment = useExperiment()
+  const loaderDefaults = useMemo(() => formatSettings(experiment.data),[experiment.data]);
   const methods = useForm<FormValues>({
     defaultValues: loaderDefaults ?? {
       usersInGroup: 4,
@@ -61,7 +44,7 @@ export default function AdminSettingsPage() {
     handleSubmit,
     watch,
     setValue,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = methods;
 
   const messagesFa = useFieldArray({ control, name: "messages" });
@@ -94,25 +77,9 @@ export default function AdminSettingsPage() {
       return;
     }
 
-    const payload = {
-      settings: {
-        usersInGroup: Number(values.usersInGroup) || 0,
-        totalDuration: total,
-      },
-      ChatMessagesplan: values.messages.map((m) => ({
-        groupType: m.groupType,
-        message: m.message,
-        timeInChat: toSeconds(m.at),
-      })),
-      ChatTimersplan: values.timers.map((t) => ({ time: toSeconds(t.time) })),
-      updatedAt: new Date().toISOString(),
-    } as const;
-    console.log("payload", payload);
-    // Persist to Firestore under experiments/exp1
-    await setDoc(doc(db, "experiments", "exp1"), payload, { merge: true });
     setSaveMessage("Settings saved.");
   };
-  console.log("watch()", watch());
+  
   return (
     <FormProvider {...methods}>
       <Card className="p-4 space-y-6 max-w-2xl m-auto overflow-visible">
@@ -286,12 +253,8 @@ export default function AdminSettingsPage() {
 }
 
 // Route loader: fetch current experiment settings and map to RHF defaults
-export async function loader() {
-  try {
-    const ref = doc(db, "experiments", "exp1");
-    const snap = await getDoc(ref);
-    if (!snap.exists()) return null;
-    const data: any = snap.data();
+export function formatSettings(data : Experiment) {
+ 
     const settings = data?.settings || {};
     const usersInGroup = Number(settings?.usersInGroup ?? 4);
     const totalDuration = fromSeconds(Number(settings?.totalDuration ?? 600));
@@ -316,8 +279,5 @@ export async function loader() {
       timers,
     };
     return result;
-  } catch (e) {
-    console.error("settings loader failed", e);
-    return null;
-  }
+
 }

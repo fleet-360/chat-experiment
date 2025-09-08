@@ -12,11 +12,11 @@ import {
 
 import { db } from "../lib/firebase";
 import type {  UserProfile } from "../types/app";
-const postOrGetUserId = async (id:string) => {
+const postOrGetUserId = async (id:string,expId:string) => {
   try {
     const userRef = doc(db, "users", id);
     const docRef = await getDoc(userRef);
-    const group = await decideAboutUserGroups(id);
+    const group = await decideAboutUserGroups(id, expId);
     console.log("group",group);
     
     if (!docRef.exists()) {
@@ -35,11 +35,11 @@ const postOrGetUserId = async (id:string) => {
   }
 };
 
-const decideAboutUserGroups = async (userId: string) => {
+const decideAboutUserGroups = async (userId: string,expId:string) => {
   try {
-    const expRef = doc(db, "experiments", "exp1");
+    const expRef = doc(db, "experiments", expId);
     const expSnap = await getDoc(expRef);
-    if (!expSnap.exists()) throw new Error("Experiment 'exp1' not found");
+    if (!expSnap.exists()) throw new Error("Experiment not found");
 
     const expData = expSnap.data() as any;
     const groups: string[] = Array.isArray(expData?.groups) ? expData.groups : [];
