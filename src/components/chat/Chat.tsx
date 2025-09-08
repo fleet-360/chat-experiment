@@ -18,6 +18,9 @@ import {
 import ChatInput from "./ChatInput";
 import { useTranslation } from "react-i18next";
 import MessageItem from "./MessageItem";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router";
+import { ElapsedTimer } from "./ElapsedTimer";
 
 export type ChatProps = {
   groupId: string;
@@ -35,6 +38,7 @@ export default function Chat({ groupId, className }: ChatProps) {
   const listRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const isAtBottomRef = useRef(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!groupId) return;
@@ -79,16 +83,51 @@ export default function Chat({ groupId, className }: ChatProps) {
     if (isAtBottomRef.current) requestAnimationFrame(scrollToBottom);
   }, [messages]);
 
+  // Derive a reasonable start time: prefer group's createdAt, otherwise first message time
+  const startDate = useMemo(() => {
+    const toDate = (v: any): Date | null => {
+      if (!v) return null;
+      if (v instanceof Date) return v;
+      if (typeof v === "object" && typeof v.seconds === "number") return new Date(v.seconds * 1000);
+      if (typeof v === "number") return new Date(v);
+      return null;
+    };
+    if (group?.createdAt) return toDate(group.createdAt);
+    let min: number | null = null;
+    for (const m of messages) {
+      const d = toDate((m as any).createdAt);
+      if (d) {
+        const t = d.getTime();
+        if (min === null || t < min) min = t;
+      }
+    }
+    return min != null ? new Date(min) : null;
+  }, [group?.createdAt, messages]);
+
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle>{headerTitle}</CardTitle>
+    <Card className={className} >
+      <CardHeader className="bg-muted border-b-2 " >
+        <div className="flex items-center justify-between gap-3 pb-4">
+          <CardTitle>{headerTitle}</CardTitle>
+          <div className="flex items-center gap-2">
+            {startDate ? (
+              <ElapsedTimer start={startDate} className="text-sm text-muted-foreground" />
+            ) : null}
+            <Button
+              size="sm"
+              variant="link"
+              onClick={() => navigate("/user/survey")}
+            >
+              {t("nav.questions")}
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div
           ref={listRef}
           onScroll={handleScroll}
-          className="flex flex-col gap-3 h-[50vh] overflow-y-auto pe-2"
+          className="flex flex-col gap-3 h-[50vh] overflow-y-auto pe-2 pt-4"
         >
           {messages.length === 0 ? (
             <div className="text-sm text-muted-foreground">
@@ -129,10 +168,8 @@ export default function Chat({ groupId, className }: ChatProps) {
                 (typeof window !== "undefined" &&
                   localStorage.getItem("userId")) ||
                 "anonymous";
-              const senderName =
-                (typeof window !== "undefined" &&
-                  localStorage.getItem("displayName")) ||
-                "Anonymous";
+                const userIndex=group?.users?.findIndex((id:string)=>id ==senderId )
+              const senderName ="user-"+(userIndex?userIndex+1:"unknoun")
               const gRef = doc(db, "groups", groupId);
               await updateDoc(gRef, {
                 messages: arrayUnion({

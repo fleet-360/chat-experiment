@@ -7,7 +7,7 @@ const UserIndex = () =>
 const UserChat = () =>
   import("./user/chat").then((m) => ({ Component: m.default ,loader:m.loader}));
 const UserQuestions = () =>
-  import("./user/questions").then((m) => ({ Component: m.default }));
+  import("./user/survey").then((m) => ({ Component: m.default }));
 
 const AdminSettings = () =>
   import("./admin/settings").then((m) => ({ Component: m.default }));
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, lazy: UserIndex },
           { path: "chat", lazy: UserChat },
-          { path: "questions", lazy: UserQuestions },
+          { path: "survey", lazy: UserQuestions },
         ],
       },
       {

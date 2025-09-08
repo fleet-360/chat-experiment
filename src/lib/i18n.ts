@@ -15,7 +15,7 @@ export const resources = {
       nav: {
         home: "Home",
         chat: "Chat",
-        questions: "Questions",
+        questions: "Finish",
         settings: "Settings",
         user: "User",
         admin: "Admin",
@@ -78,7 +78,7 @@ export const resources = {
       nav: {
         home: "דף הבית",
         chat: "צ'אט",
-        questions: "שאלות",
+        questions: "סיום",
         settings: "הגדרות",
         user: "משתמש",
         admin: "מנהל",

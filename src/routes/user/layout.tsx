@@ -24,7 +24,7 @@ export default function UserLayout() {
             {t("nav.chat")}
           </NavLink>
           <NavLink
-            to="/user/questions"
+            to="/user/survey"
             className={({ isActive }) => (isActive ? "font-bold" : undefined)}
           >
             {t("nav.questions")}
