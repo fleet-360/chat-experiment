@@ -3,20 +3,17 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../ui/button";
 import { Smile, Send } from "lucide-react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
+import { useForm } from "react-hook-form";
 
 type ChatInputProps = {
-  value: string;
   disabled?: boolean;
-  onChange: (v: string) => void;
-  onSend: () => Promise<void> | void;
+  onSend: (message:string) => Promise<void> | void;
   placeholder?: string;
   className?: string;
 };
 
 export default function ChatInput({
-  value,
   disabled,
-  onChange,
   onSend,
   placeholder,
   className,
@@ -26,6 +23,13 @@ export default function ChatInput({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [showPicker, setShowPicker] = useState(false);
+
+  type FormValues = { text: string };
+  const { register, handleSubmit, setValue, watch, reset,formState } = useForm<FormValues>({
+    defaultValues: { text: "" },
+  });
+  const watchedText = watch("text");
+
 
   // Close picker when clicking outside
   useEffect(() => {
@@ -40,14 +44,15 @@ export default function ChatInput({
 
   const insertAtCaret = (text: string) => {
     const el = textareaRef.current;
+    const current = watchedText ?? "";
     if (!el) {
-      onChange((value ?? "") + text);
+      setValue("text", current + text, { shouldDirty: true });
       return;
     }
-    const start = el.selectionStart ?? value.length;
+    const start = el.selectionStart ?? current.length;
     const end = el.selectionEnd ?? start;
-    const next = (value ?? "").slice(0, start) + text + (value ?? "").slice(end);
-    onChange(next);
+    const next = current.slice(0, start) + text + current.slice(end);
+    setValue("text", next, { shouldDirty: true });
     queueMicrotask(() => {
       try {
         const pos = start + text.length;
@@ -57,32 +62,42 @@ export default function ChatInput({
     });
   };
 
+  const onSubmit = async () => {
+    const v = (watchedText ?? "").trim();
+    if (!v || disabled) return;
+    reset({ text: "" });
+    await onSend(v);
+    setShowPicker(false);
+    textareaRef.current?.focus();
+  };
+
   return (
-    <form
-      ref={formRef}
-      onSubmit={async (e) => {
-        e.preventDefault();
-        if (!value.trim() || disabled) return;
-        await onSend();
-      }}
-      className={className}
-    >
-      <div ref={containerRef} className="relative flex items-center rounded-full border ps-4 pe-1 py-1 bg-background">
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder ?? t("chat.placeholder")}
-          rows={1}
-          onKeyDown={async (e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              if (!value.trim() || disabled) return;
-              await onSend();
-            }
-          }}
-          className="flex-1 bg-transparent resize-none outline-none border-0 h-10 leading-6 text-sm ps-0 pe-0"
-        />
+    <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className={className}>
+      <div
+        ref={containerRef}
+        className="relative flex items-center rounded-full border ps-4 pe-1 py-1 bg-background"
+      >
+        {(() => {
+          const { ref, ...field } = register("text");
+          return (
+            <textarea
+              {...field}
+              ref={(el) => {
+                (ref as (instance: HTMLTextAreaElement | null) => void)(el);
+                textareaRef.current = el;
+              }}
+              placeholder={placeholder ?? t("chat.placeholder")}
+              rows={1}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(onSubmit)();
+                }
+              }}
+              className="flex-1 bg-transparent resize-none outline-none border-0 h-10 leading-6 text-sm ps-0 pe-0"
+            />
+          );
+        })()}
         <div className="flex items-center gap-1 ms-2">
           <div className="relative">
             <Button
@@ -117,7 +132,7 @@ export default function ChatInput({
           <Button
             type="submit"
             size="icon"
-            disabled={disabled || !value.trim()}
+            disabled={disabled || !(watchedText ?? "").trim() || formState.isSubmitting}
             className="rounded-full"
             title={t("chat.send")}
           >
@@ -128,4 +143,3 @@ export default function ChatInput({
     </form>
   );
 }
-
