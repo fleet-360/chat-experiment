@@ -7,7 +7,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../lib/firebase";
-import type { GroupMessage } from "../../types/app";
+import type { Group, GroupMessage } from "../../types/app";
 import {
   Card,
   CardContent,
@@ -25,16 +25,12 @@ export type ChatProps = {
   className?: string;
 };
 
-type FirestoreGroupDoc = {
-  messages?: (GroupMessage & { text?: string })[];
-  name?: string;
-};
 
 export default function Chat({ groupId, className }: ChatProps) {
   const [messages, setMessages] = useState<
     (GroupMessage & { text?: string })[]
   >([]);
-  const [groupName, setGroupName] = useState<string | undefined>(undefined);
+  const [group, setGroup] = useState<Group | undefined>(undefined);
   const { t } = useTranslation();
   const listRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -44,16 +40,16 @@ export default function Chat({ groupId, className }: ChatProps) {
     if (!groupId) return;
     const ref = doc(db, "groups", groupId);
     const unsub = onSnapshot(ref, (snap) => {
-      const data = snap.data() as FirestoreGroupDoc | undefined;
+      const data = snap.data() as Group | undefined;
       setMessages(Array.isArray(data?.messages) ? data!.messages : []);
-      setGroupName(data?.name);
+      setGroup(data);
     });
     return () => unsub();
   }, [groupId]);
 
   const headerTitle = useMemo(
-    () => groupName ?? t("chat.groupTitle", { id: groupId }),
-    [groupName, groupId, t]
+    () => group?.name ?? t("chat.groupTitle", { id: groupId }),
+    [group?.name, groupId, t]
   );
 
   const handleScroll = () => {
@@ -151,6 +147,7 @@ export default function Chat({ groupId, className }: ChatProps) {
               console.error("Failed to send message", err);
             } 
           }}
+          withEmojy={group?.groupType !== "noEmojy"}
           className="w-full"
         />
       </CardFooter>

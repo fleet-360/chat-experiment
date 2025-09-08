@@ -10,6 +10,7 @@ type ChatInputProps = {
   onSend: (message:string) => Promise<void> | void;
   placeholder?: string;
   className?: string;
+  withEmojy?:boolean
 };
 
 export default function ChatInput({
@@ -17,6 +18,7 @@ export default function ChatInput({
   onSend,
   placeholder,
   className,
+  withEmojy=true
 }: ChatInputProps) {
   const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -100,7 +102,7 @@ export default function ChatInput({
         })()}
         <div className="flex items-center gap-1 ms-2">
           <div className="relative">
-            <Button
+            {withEmojy&&<Button
               type="button"
               variant="ghost"
               size="icon"
@@ -111,7 +113,7 @@ export default function ChatInput({
               aria-haspopup="dialog"
             >
               <Smile className="size-5" />
-            </Button>
+            </Button>}
             {showPicker && (
               <div className="absolute z-50 end-0 bottom-full mb-2 shadow-sm rounded-xl overflow-hidden border bg-background">
                 <EmojiPicker
