@@ -21,6 +21,7 @@ import MessageItem from "./MessageItem";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router";
 import { ElapsedTimer } from "./ElapsedTimer";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export type ChatProps = {
   groupId: string;
@@ -110,8 +111,26 @@ export default function Chat({ groupId, className,isAdmin=false }: ChatProps) {
       <CardHeader className="bg-muted border-b-2 ">
         <div className="flex items-center justify-between gap-3 pb-4">
           <CardTitle>
-            {headerTitle}<br/>
-            <span className="text-muted-foreground text-sm">{isAdmin && group?.users.map(id=>`PROLIFIC_ID-${id}`).join(", ")}</span>
+            {headerTitle}
+            <br />
+            {isAdmin && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className="block text-muted-foreground text-sm max-w-10/12 truncate ">
+                    {group?.users.map((id) => `PROLIFIC_ID-${id}`).join(", ")}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span className=" ">
+                    {group?.users.map((id) => `PROLIFIC_ID-${id}`).join(", ")}
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {/* <span className="block text-muted-foreground text-sm max-w-10/12 truncate ">
+              {isAdmin &&
+                group?.users.map((id) => `PROLIFIC_ID-${id}`).join(", ")}
+            </span> */}
           </CardTitle>
 
           <div className="flex items-center gap-2">
