@@ -59,7 +59,7 @@ const decideAboutUserGroups = async (userId: string) => {
         return gid
       }
 
-      if (!users.includes(userId) && users.length <= capacity) {
+      if (!users.includes(userId) && users.length < capacity) {
         await updateDoc(gRef, { users: arrayUnion(userId) });
         chosenGroupId = gid;
         becameFull = users.length + 1 >= capacity;
