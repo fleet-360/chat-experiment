@@ -7,7 +7,7 @@ function App() {
     <>
       <div className="p-4 text-xl font-semibold flex items-center gap-4">
         {/* <div>{t("app.title")}</div> */}
-        <div className="ltr:ml-auto rtl:mr-auto">
+        <div className="ms-auto">
           <LanguageSwitcher />
         </div>
       </div>

@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { arrayUnion, doc, onSnapshot, Timestamp, updateDoc } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import type { GroupMessage } from "../../types/app";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
-import { Textarea } from "../ui/textarea";
-import { Button } from "../ui/button";
+import ChatInput from "./ChatInput";
 import { useTranslation } from "react-i18next";
 import MessageItem from "./MessageItem";
 
@@ -25,6 +24,9 @@ export default function Chat({ groupId,  className }: ChatProps) {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const { t } = useTranslation();
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const isAtBottomRef = useRef(true);
 
   useEffect(() => {
     if (!groupId) return;
@@ -37,7 +39,37 @@ export default function Chat({ groupId,  className }: ChatProps) {
     return () => unsub();
   }, [groupId]);
 
-  const headerTitle = useMemo(() =>  groupName ?? `Group ${groupId}`,[ groupName, groupId]);
+  const headerTitle = useMemo(
+    () => groupName ?? t("chat.groupTitle", { id: groupId }),
+    [groupName, groupId, t]
+  );
+
+  const handleScroll = () => {
+    const el = listRef.current;
+    if (!el) return;
+    const threshold = 40;
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isAtBottomRef.current = distance <= threshold;
+  };
+
+  const scrollToBottom = () => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ block: "end" });
+    } else if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    // Initial stick-to-bottom
+    isAtBottomRef.current = true;
+    requestAnimationFrame(scrollToBottom);
+  }, []);
+
+  useEffect(() => {
+    // Keep at bottom when user hasn't scrolled up
+    if (isAtBottomRef.current) requestAnimationFrame(scrollToBottom);
+  }, [messages]);
 
   return (
     <Card className={className}>
@@ -45,7 +77,11 @@ export default function Chat({ groupId,  className }: ChatProps) {
         <CardTitle>{headerTitle}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-3 h-[60vh] overflow-y-auto pr-2">
+        <div
+          ref={listRef}
+          onScroll={handleScroll}
+          className="flex flex-col gap-3 h-[50vh] overflow-y-auto pe-2"
+        >
           {messages.length === 0 ? (
             <div className="text-sm text-muted-foreground">{t("chat.noMessages")}</div>
           ) : (
@@ -62,12 +98,16 @@ export default function Chat({ groupId,  className }: ChatProps) {
                 <MessageItem key={idx} message={m} />
               ))
           )}
+          <div ref={bottomRef} />
         </div>
       </CardContent>
-      <CardFooter className="gap-2">
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
+      <CardFooter>
+        <ChatInput
+          value={text}
+          onChange={setText}
+          disabled={sending}
+          placeholder={t("chat.placeholder")}
+          onSend={async () => {
             const value = text.trim();
             if (!value) return;
             if (!groupId) return;
@@ -92,18 +132,8 @@ export default function Chat({ groupId,  className }: ChatProps) {
               setSending(false);
             }
           }}
-          className="flex w-full items-start gap-2"
-        >
-          <Textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={t("chat.placeholder")}
-            className="min-h-[60px] flex-1"
-          />
-          <Button type="submit" disabled={sending || !text.trim()}>
-            {t("chat.send")}
-          </Button>
-        </form>
+          className="w-full"
+        />
       </CardFooter>
     </Card>
   );

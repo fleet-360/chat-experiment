@@ -77,7 +77,7 @@ const decideAboutUserGroups = async (userId: string) => {
         id:`exp-${expRef.id}-group-${groups.length}`,
         createdAt: serverTimestamp(),
       } );
-      const newGroups = [newGroupRef.id, ...groups];
+      const newGroups = [...groups,newGroupRef.id];
       await updateDoc(expRef, { groups: newGroups });
       return newGroupRef.id;
     }
@@ -92,7 +92,7 @@ const decideAboutUserGroups = async (userId: string) => {
         id: `exp-${expRef.id}-group-${groups.length}`,
         createdAt: serverTimestamp(),
       });
-      const newGroups = [newGroupRef.id, ...groups];
+      const newGroups = [...groups, newGroupRef.id];
       await updateDoc(expRef, { groups: newGroups });
     }
 

@@ -6,7 +6,7 @@ export default function MessageItem({
 }: {
   message: GroupMessage & { text?: string };
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const myId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
   const isAdmin = !!message.isAdmin;
   const isMine = !isAdmin && myId && message.senderId === myId;
@@ -24,6 +24,20 @@ export default function MessageItem({
 
   const nameMuted = isAdmin ? "text-foreground/80" : "text-foreground/90";
 
+  // Format timestamp from Firestore Timestamp or Date
+  const timeLabel = (() => {
+    const v: any = (message as any).createdAt;
+    let d: Date | null = null;
+    if (v && typeof v === "object" && "seconds" in v && typeof (v as any).seconds === "number") {
+      d = new Date((v as any).seconds * 1000);
+    } else if (v instanceof Date) {
+      d = v;
+    }
+    return d ? d.toLocaleTimeString(i18n.language, { hour: "2-digit", minute: "2-digit" }) : "";
+  })();
+
+  const timeAlign = isAdmin ? "text-center" : isMine ? "text-end" : "text-start";
+
   return (
     <div className={`flex w-full ${justify}`}>
       <div className="flex flex-col  items-stretch gap-1">
@@ -39,6 +53,11 @@ export default function MessageItem({
         </div>
         <div className={`${bubbleBase} ${bubbleVariant}`}>
           {message.text ?? "—"}
+          {timeLabel && (
+            <p className={`ms-2 text-[11px] opacity-70 ${timeAlign} `}>
+              {timeLabel}
+            </p>
+          )}
         </div>
       </div>
     </div>
