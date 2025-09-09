@@ -5,9 +5,9 @@ import {
   setDoc,
   getDocs,
   updateDoc,
-  addDoc,
   arrayUnion,
   serverTimestamp,
+  runTransaction,
 } from "firebase/firestore";
 
 import { db } from "../lib/firebase";
@@ -35,68 +35,61 @@ const postOrGetUserId = async (id:string,expId:string) => {
   }
 };
 
-const decideAboutUserGroups = async (userId: string,expId:string) => {
+const decideAboutUserGroups = async (userId: string, expId: string) => {
   try {
     const expRef = doc(db, "experiments", expId);
-    const expSnap = await getDoc(expRef);
-    if (!expSnap.exists()) throw new Error("Experiment not found");
 
-    const expData = expSnap.data() as any;
-    const groups: string[] = Array.isArray(expData?.groups) ? expData.groups : [];
-    const capacity: number = Number(expData?.settings?.usersInGroup ?? 4);3
+    const groupId = await runTransaction(db, async (tx) => {
+      const expSnap = await tx.get(expRef);
+      if (!expSnap.exists()) throw new Error("Experiment not found");
 
-    let chosenGroupId: string | null = null;
-    for (const gid of groups) {
-      const gRef = doc(db, "groups", gid);
-      const gSnap = await getDoc(gRef);
-      
-      if (!gSnap.exists()) continue;
-      const gData = gSnap.data() as any;
-      const users: string[] = Array.isArray(gData?.users) ? gData.users : [];
+      const expData = expSnap.data() as any;
+      const groups: string[] = Array.isArray(expData?.groups) ? expData.groups : [];
+      const capacity: number = Number(expData?.settings?.usersInGroup ?? 4);
 
-      if (users.includes(userId)) {
-        return gid
+      // First, try to place the user into an existing group
+      for (const gid of groups) {
+        const gRef = doc(db, "groups", gid);
+        const gSnap = await tx.get(gRef);
+        if (!gSnap.exists()) continue;
+
+        const gData = gSnap.data() as any;
+        const users: string[] = Array.isArray(gData?.users) ? gData.users : [];
+
+        // If the user already belongs to this group, return it
+        if (users.includes(userId)) {
+          return gid;
+        }
+
+        // If there is room, add the user atomically
+        if (users.length < capacity) {
+          tx.update(gRef, { users: arrayUnion(userId) });
+          return gid;
+        }
       }
 
-      if (!users.includes(userId) && users.length < capacity) {
-        await updateDoc(gRef, { users: arrayUnion(userId) });
-        chosenGroupId = gid;
-        // Track if the group became full if needed in future
-        break;
-      }
-    }
+      // No available group found; create a new one atomically
+      const newIndex = groups.length + 1;
+      const newGroupRef = doc(collection(db, "groups")); // pre-generate id for transaction
+      const groupType = newIndex % 2 === 0 ? "noEmojy" : "emojy";
 
-    // If no not-full group found, create a new one and place at the beginning
-    if (!chosenGroupId) {
-      const newGroupRef = await addDoc(collection(db, "groups"), {
+      tx.set(newGroupRef, {
         users: [userId],
-        experimentId:expRef.id,
-        groupType:groups.length%2==0 ?"emojy": "noEmojy",
-        messages:[],
-        name:`group-${groups.length+1}`,
-        id:`exp-${expRef.id}-group-${groups.length+1}`,
+        experimentId: expRef.id,
+        groupType,
+        messages: [],
+        name: `group-${newIndex}`,
+        id: `exp-${expRef.id}-group-${newIndex}`,
         createdAt: serverTimestamp(),
-      } );
-      const newGroups = [...groups,newGroupRef.id];
-      await updateDoc(expRef, { groups: newGroups });
+      });
+
+      // Append the group reference without overwriting concurrent updates
+      tx.update(expRef, { groups: arrayUnion(newGroupRef.id) });
+
       return newGroupRef.id;
-    }
+    });
 
-    // If the chosen group is now full, create a new empty group and unshift it
-    // if (becameFull) {
-    //   const newGroupRef = await addDoc(collection(db, "groups"), {
-    //     users: [],
-    //     groupType: groups.length % 2 == 0 ? "emojy" : "noEmojy",
-    //     messages: [],
-    //     name: `group-${groups.length}`,
-    //     id: `exp-${expRef.id}-group-${groups.length}`,
-    //     createdAt: serverTimestamp(),
-    //   });
-    //   const newGroups = [...groups, newGroupRef.id];
-    //   await updateDoc(expRef, { groups: newGroups });
-    // }
-
-    return chosenGroupId;
+    return groupId;
   } catch (error) {
     console.error("Error in decideAboutUserGroups:", error);
   }

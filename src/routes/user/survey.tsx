@@ -6,6 +6,7 @@ import { Button } from "../../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { saveSurveyAnswers } from "../../services/experimentService";
 import { useNavigate } from "react-router";
+import { useExperiment } from "../../context/ExperimentContext";
 
 type FormValues = Record<string, number | string> & {
   gender?: string;
@@ -37,6 +38,7 @@ type SemanticConfig = {
 export default function SurveyPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const experiment = useExperiment()
   const { register, handleSubmit, control,formState:{isSubmitting} } = useForm<FormValues>({
     defaultValues: {},
   });
@@ -44,7 +46,7 @@ export default function SurveyPage() {
   const submit = async (data: FormValues) => {
     try {
       const userId = (typeof window !== "undefined" && localStorage.getItem("userId")) || "anonymous";
-      await saveSurveyAnswers(userId, data as Record<string, unknown>);
+      await saveSurveyAnswers(userId, data as Record<string, unknown>,experiment.experimentId);
       navigate("/user/thank-you");
     } catch (e) {
       console.error("Failed to save survey answers", e);
