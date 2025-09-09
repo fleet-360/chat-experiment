@@ -38,7 +38,7 @@ type SemanticConfig = {
 export default function SurveyPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const experiment = useExperiment()
+  const {experimentId} = useExperiment()
   const { register, handleSubmit, control,formState:{isSubmitting} } = useForm<FormValues>({
     defaultValues: {},
   });
@@ -46,7 +46,7 @@ export default function SurveyPage() {
   const submit = async (data: FormValues) => {
     try {
       const userId = (typeof window !== "undefined" && localStorage.getItem("userId")) || "anonymous";
-      await saveSurveyAnswers(userId, data as Record<string, unknown>,experiment.experimentId);
+      await saveSurveyAnswers(userId, data as Record<string, unknown>,experimentId);
       navigate("/user/thank-you");
     } catch (e) {
       console.error("Failed to save survey answers", e);

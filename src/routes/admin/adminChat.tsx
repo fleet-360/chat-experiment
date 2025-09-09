@@ -4,8 +4,7 @@ import Chat from "../../components/chat/Chat";
 import { listenExperimentGroups } from "../../services/experimentService";
 import { useExperiment } from "../../context/ExperimentContext";
 import AdminSidebar from "../../components/admin/AdminSidebar";
-import { db } from "../../lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { exportExperimentToXlsx } from "../../services/exportService";
 
 export default function AdminChat() {
   const { experimentId } = useExperiment();
@@ -28,28 +27,9 @@ export default function AdminChat() {
 
   const onExportAll = async () => {
     try {
-      const fullGroups: any[] = [];
-      for (const g of groups || []) {
-        const snap = await getDoc(doc(db, "groups", g.groupId));
-        fullGroups.push({ id: g.groupId, ...(snap.data() || {}) });
-      }
-      const payload = {
-        exportedAt: new Date().toISOString(),
-        groups: fullGroups,
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {
-        type: "application/json",
+      await exportExperimentToXlsx(experimentId, {
+        filename: `export-all-${experimentId}-${new Date().toISOString().replace(/[:.]/g, "-")}`,
       });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `export-all-${new Date()
-        .toISOString()
-        .replace(/[:.]/g, "-")}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Failed to export", e);
       alert(t("pages.exportFailed"));

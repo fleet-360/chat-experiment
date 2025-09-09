@@ -77,6 +77,12 @@ export function ElapsedTimer({
     }
   }
 
+  useEffect(() => {
+    if (completedRef.current) {
+      completedRef.current = false;
+    }
+  }, [start]);
+
   // Format label
   const pad = (n: number) => String(n).padStart(2, "0");
   let label = "";
@@ -84,7 +90,9 @@ export function ElapsedTimer({
     const hours = Math.floor(remaining / 3600);
     const minutes = Math.floor((remaining % 3600) / 60);
     const seconds = remaining % 60;
-    label = `${withHours || hours > 0 ? pad(hours) + ":" : ""}${pad(minutes)}:${pad(seconds)}`;
+    label = `${withHours || hours > 0 ? pad(hours) + ":" : ""}${pad(
+      minutes
+    )}:${pad(seconds)}`;
   } else {
     const total = elapsedSecs;
     const h = Math.floor(total / 3600);

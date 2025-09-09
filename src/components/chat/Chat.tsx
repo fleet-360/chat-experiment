@@ -54,6 +54,7 @@ export default function Chat({
 
   useEffect(() => {
     if (!groupId) return;
+    setIsTimeOut(false);
     const ref = doc(db, "groups", groupId);
     const unsub = onSnapshot(ref, (snap) => {
       const data = snap.data() as Group | undefined;
@@ -107,7 +108,7 @@ export default function Chat({
       }
     }
     return min != null ? new Date(min) : null;
-  }, [group?.createdAt, messages]);
+  }, [group?.experimentId, messages]);
 
   return (
     <Card className={className}>
@@ -185,7 +186,7 @@ export default function Chat({
           <div ref={bottomRef} />
         </div>
       </CardContent>
-      <CardFooter className="border-t bg-muted/30">
+      <CardFooter className="border-t bg-muted/30 py-2 ">
         {!isTimeOut ? (
           <ChatInput
           placeholder={t("chat.placeholder")}
