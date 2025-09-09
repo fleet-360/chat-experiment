@@ -52,7 +52,7 @@ export default function AdminChat() {
       URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Failed to export", e);
-      alert("Export failed. See console for details.");
+      alert(t("pages.exportFailed"));
     }
   };
 
@@ -71,9 +71,7 @@ export default function AdminChat() {
           <Chat groupId={selected} isAdmin={true} />
         ) : (
           <div className="border rounded-md p-4 text-sm text-muted-foreground">
-            {t("admin.selectGroup", {
-              defaultValue: "Select a group to view chat",
-            })}
+            {t("pages.adminSelectGroup")}
           </div>
         )}
       </div>

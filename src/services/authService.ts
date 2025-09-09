@@ -43,7 +43,7 @@ const decideAboutUserGroups = async (userId: string,expId:string) => {
 
     const expData = expSnap.data() as any;
     const groups: string[] = Array.isArray(expData?.groups) ? expData.groups : [];
-    const capacity: number = Number(expData?.settings?.usersInGroup ?? 4);
+    const capacity: number = Number(expData?.settings?.usersInGroup ?? 4);3
 
     let chosenGroupId: string | null = null;
     for (const gid of groups) {

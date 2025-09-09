@@ -11,13 +11,11 @@ export default function ThankYouPage() {
     <div className="container mx-auto max-w-2xl px-4 py-12">
       <Card>
         <CardHeader>
-          <CardTitle>{t("survey.thankYouTitle", { defaultValue: "Thank you!" })}</CardTitle>
+          <CardTitle>{t("survey.thankYouTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {t("survey.thankYouBody", {
-              defaultValue: "Your responses were recorded. You may close this window or return to the app.",
-            })}
+            {t("survey.thankYouBody")}
           </p>
         </CardContent>
         <CardFooter>
@@ -27,4 +25,3 @@ export default function ThankYouPage() {
     </div>
   );
 }
-

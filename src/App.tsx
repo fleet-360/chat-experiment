@@ -2,9 +2,20 @@ import "./App.css";
 import { Outlet, redirect, useLoaderData, useNavigation } from "react-router";
 import { ExperimentProvider } from "./context/ExperimentContext";
 import { getExperiment } from "./services/experimentService";
-import Spinner from "./components/ui/Spinner";
+import Spinner from "./components/ui/spinner";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
 function App() {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const dir = i18n.dir();
+    const lang = i18n.language;
+    document.documentElement.setAttribute("dir", dir);
+    document.documentElement.setAttribute("lang", lang);
+  }, [i18n, i18n.language]);
+
   const data = useLoaderData() as {
     experimentId: string;
     experiment: any;
@@ -15,9 +26,7 @@ function App() {
   const isNavigating = Boolean(navigation.location);
   return (
     <ExperimentProvider experimentId={experimentId} initialData={initial}>
-      {isNavigating && (
-        <Spinner/>
-      )}
+      {isNavigating && <Spinner />}
       <Outlet />
     </ExperimentProvider>
   );
@@ -40,7 +49,7 @@ export async function loader({ request }: { request: Request }) {
     localStorage.setItem("userId", prolifId);
   }
   // Prefetch current experiment
-  const experimentId = "exp1";
+  const experimentId = "exp2";
 
   if (experimentId) {
     localStorage.setItem("expId", experimentId);

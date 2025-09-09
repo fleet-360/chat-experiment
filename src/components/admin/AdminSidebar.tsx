@@ -58,27 +58,25 @@ export default function AdminSidebar({
         <button
           type="button"
           onClick={onExportAll}
-          className="ml-auto inline-flex items-center gap-2 text-xs px-2 py-1 rounded hover:bg-muted"
+          className="ms-auto inline-flex items-center gap-2 text-xs px-2 py-1 rounded hover:bg-muted"
         >
-          <span>{t("admin.exportAll", { defaultValue: "Export all" })}</span>
+          <span>{t("pages.adminExportAll")}</span>
           <Download className="size-4" />
         </button>
       </div>
 
       <Command className="rounded-none border-0 flex-1 flex flex-col">
         <CommandInput
-          placeholder={t("admin.searchPlaceholder", {
-            defaultValue: "search (by group name or prolific_pid)",
-          })}
+          placeholder={t("pages.adminSearchPlaceholder")}
           value={search}
           onValueChange={setSearch}
           className="h-12"
         />
         <CommandList className="max-h-none h-auto flex-1">
           <CommandEmpty>
-            {t("admin.noGroups", { defaultValue: "No groups found" })}
+            {t("pages.adminNoGroups")}
           </CommandEmpty>
-          <CommandGroup heading={t("admin.groups", { defaultValue: "Groups" })}>
+          <CommandGroup heading={t("pages.adminGroups")}>
             {groups.map((g) => {
               const searchValue = `${g.groupName ?? ""} ${(g.users || []).join(
                 " "
@@ -98,7 +96,7 @@ export default function AdminSidebar({
                     </div>
                     {g.users && g.users.length > 0 ? (
                       <div className="mt-1 text-[11px] text-muted-foreground truncate">
-                        {g.users.map((id) => `PROLIFIC_ID-${id}`).join(", ")}
+                        {g.users.map((id) => `${t("chat.prolificIdPrefix")}${id}`).join(", ")}
                       </div>
                     ) : null}
                   </div>

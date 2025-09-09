@@ -98,11 +98,11 @@ export default function ChatInput({
           )}
           {showAdminSwitch && (
             <label className="flex items-center gap-2 text-xs text-muted-foreground me-1 select-none">
-              <span>{sendAsAdmin ? t("admin.admin", { defaultValue: "Admin" }) : t("common.user", { defaultValue: "User" })}</span>
+              <span>{sendAsAdmin ? t("chat.admin") : t("nav.user")}</span>
               <Switch
                 checked={sendAsAdmin}
                 onCheckedChange={setSendAsAdmin}
-                aria-label="Send as admin"
+                aria-label={t("chat.sendAsAdmin")}
               />
             </label>
           )}

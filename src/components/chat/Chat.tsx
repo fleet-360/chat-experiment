@@ -119,12 +119,12 @@ export default function Chat({
               <Tooltip>
                 <TooltipTrigger>
                   <span className="block text-muted-foreground text-sm max-w-sm truncate ">
-                    {group?.users.map((id) => `PROLIFIC_ID-${id}`).join(", ")}
+                    {group?.users.map((id) => `${t("chat.prolificIdPrefix")}${id}`).join(", ")}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <span className=" ">
-                    {group?.users.map((id) => `PROLIFIC_ID-${id}`).join(", ")}
+                    {group?.users.map((id) => `${t("chat.prolificIdPrefix")}${id}`).join(", ")}
                   </span>
                 </TooltipContent>
               </Tooltip>

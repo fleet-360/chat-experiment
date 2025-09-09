@@ -7,6 +7,7 @@ export const resources = {
     translation: {
       survey: {
         title: "Survey",
+        saveFailed: "Failed to save. Please try again.",
         submitted: "Thanks! Your responses were recorded.",
         ideaGenTitle: "Idea generation process",
         ideaSelectTitle: "Idea selection process",
@@ -85,6 +86,10 @@ export const resources = {
         adminArea: "Admin Area",
         goToAdmin: "Go to Admin",
         goToUser: "Go to User",
+        back: "Back",
+        remove: "Remove",
+        save: "Save",
+        user: "User",
       },
       nav: {
         home: "Home",
@@ -107,12 +112,37 @@ export const resources = {
         adminChat: "Admin Chat",
         prolificRequiredTitle: "Access Restricted",
         prolificRequiredMessage: "you have to connect via proflic system",
+        adminSelectGroup: "Select a group to view chat",
+        adminExportAll: "Export all",
+        adminSearchPlaceholder: "search (by group name or prolific_pid)",
+        adminNoGroups: "No groups found",
+        adminGroups: "Groups",
+        exportFailed: "Export failed. See console for details.",
+        chatMessagesPlan: "Chat Messages plan",
+        chatTimersPlan: "Chat Timers plan",
+        group: "Group",
+        emojiGroup: "emoji group",
+        nonEmojiGroup: "non emoji group",
+        message: "message",
+        timer: "Timer",
+        addNewMessage: "Add new message",
+        addNewTimer: "Add new timer",
+        participantsPerGroup: "Participants per group",
+        participantsPerGroupHint: "Each group includes the number shown above.",
+        totalDuration: "Total duration",
+        mmssPlaceholder: "mm:ss",
+        egTime: "e.g. 10:00",
+        totalTimersMustBe: "Total timers must be {{expected}} (current {{current}})",
+        totalTimersMustEqualDuration: "Total timers ({{sum}}) must equal total duration ({{total}}).",
+        settingsSaved: "Settings saved.",
       },
       chat: {
         noMessages: "No messages yet.",
         placeholder: "Type your message",
         send: "Send",
         admin: "Admin",
+        sendAsAdmin: "Send as admin",
+        prolificIdPrefix: "PROLIFIC_ID-",
         groupTitle: "Group {{id}}",
         missingGroup:
           "Missing group assignment for user. Please return to consent.",
@@ -276,6 +306,27 @@ export const resources = {
     },
   },
 } as const;
+
+// Ensure Hebrew has full key parity with English by filling missing keys
+// with English strings. This preserves existing Hebrew values and only
+// backfills absent ones to maintain strict parity across languages.
+function deepFillMissing(target: any, source: any) {
+  if (!target || !source) return;
+  for (const key of Object.keys(source)) {
+    const sv = (source as any)[key];
+    const tv = (target as any)[key];
+    if (tv == null) {
+      (target as any)[key] = sv;
+    } else if (
+      typeof sv === "object" && sv != null && !Array.isArray(sv) &&
+      typeof tv === "object" && tv != null && !Array.isArray(tv)
+    ) {
+      deepFillMissing(tv, sv);
+    }
+  }
+}
+
+
 
 i18n
   .use(LanguageDetector)

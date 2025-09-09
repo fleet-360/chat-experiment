@@ -48,7 +48,7 @@ export default function SurveyPage() {
       navigate("/user/thank-you");
     } catch (e) {
       console.error("Failed to save survey answers", e);
-      alert("Failed to save. Please try again.");
+      alert(t("survey.saveFailed"));
     }
   };
 
@@ -226,22 +226,20 @@ export default function SurveyPage() {
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>{t("survey.title", { defaultValue: "Survey" })}</CardTitle>
+          <CardTitle>{t("survey.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-8">
           {groups.map((g, gi) => (
             <section key={gi} className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                {t(g.titleKey, { defaultValue: (g as any).titleDefault })}
-              </h3>
+              <h3 className="text-lg font-semibold">{t(g.titleKey as any)}</h3>
               <div className="space-y-3">
                 {g.items.map((q) => (
                   <LikertRow
                     key={q.name}
                     name={q.name}
-                    label={t(q.i18nKey, { defaultValue: q.defaultLabel })}
-                    leftLabel={t(q.leftKey, { defaultValue: q.leftDefault })}
-                    rightLabel={t(q.rightKey, { defaultValue: q.rightDefault })}
+                    label={t(q.i18nKey as any)}
+                    leftLabel={t(q.leftKey as any)}
+                    rightLabel={t(q.rightKey as any)}
                     scale={q.scale}
                     register={register}
                   />
@@ -252,14 +250,12 @@ export default function SurveyPage() {
 
           <section className="space-y-4">
             <h3 className="text-lg font-semibold">
-              {t("survey.demographicsTitle", { defaultValue: "Demographics" })}
+              {t("survey.demographicsTitle")}
             </h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm mb-1">
-                  {t("survey.gender", {
-                    defaultValue: "Please select your gender",
-                  })}
+                  {t("survey.gender")}
                 </label>
                 <Controller
                   name="gender"
@@ -270,26 +266,20 @@ export default function SurveyPage() {
                       onValueChange={field.onChange}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={t("survey.chooseOption", {
-                            defaultValue: "Choose an option",
-                          })}
-                        />
+                        <SelectValue placeholder={t("survey.chooseOption")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="female">
-                          {t("survey.genderFemale", { defaultValue: "Female" })}
+                          {t("survey.genderFemale")}
                         </SelectItem>
                         <SelectItem value="male">
-                          {t("survey.genderMale", { defaultValue: "Male" })}
+                          {t("survey.genderMale")}
                         </SelectItem>
                         <SelectItem value="prefer_not_say">
-                          {t("survey.genderPreferNotSay", {
-                            defaultValue: "Prefer not to say",
-                          })}
+                          {t("survey.genderPreferNotSay")}
                         </SelectItem>
                         <SelectItem value="other">
-                          {t("survey.genderOther", { defaultValue: "Other" })}
+                          {t("survey.genderOther")}
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -297,11 +287,7 @@ export default function SurveyPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-1">
-                  {t("survey.age", {
-                    defaultValue: "Please indicate your age",
-                  })}
-                </label>
+                <label className="block text-sm mb-1">{t("survey.age")}</label>
                 <input
                   type="number"
                   min={0}
@@ -318,7 +304,7 @@ export default function SurveyPage() {
             className="ms-auto"
             disabled={isSubmitting}
           >
-            {t("survey.submit", { defaultValue: "Submit" })}
+            {t("survey.submit")}
           </Button>
         </CardFooter>
       </Card>
