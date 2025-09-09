@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
@@ -52,7 +52,7 @@ export default function AdminSettingsPage() {
   const timersFa = useFieldArray({ control, name: "timers" });
 
   const watchedTimers = watch("timers");
-  const sumTimers = useMemo(
+  const sumTimers = useCallback(
     () => (watchedTimers || []).reduce((acc, t) => acc + toSeconds(t.time), 0),
     [watchedTimers]
   );
@@ -235,7 +235,7 @@ export default function AdminSettingsPage() {
               </div>
               <div className="text-xs text-muted-foreground">
                 Total timers must be {watch("totalDuration")} (current{" "}
-                {fromSeconds(sumTimers)})
+                {fromSeconds(sumTimers())})
               </div>
             </Card>
           </section>

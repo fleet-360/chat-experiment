@@ -1,20 +1,23 @@
 import "./App.css";
-import { Outlet, redirect, useLoaderData } from "react-router";
+import { Outlet, redirect, useLoaderData, useNavigation } from "react-router";
 import { ExperimentProvider } from "./context/ExperimentContext";
 import { getExperiment } from "./services/experimentService";
+import Spinner from "./components/ui/Spinner";
 
 function App() {
-  const data = useLoaderData() as { experimentId: string; experiment: any } | null;
-  const experimentId = data?.experimentId??"" ;
+  const data = useLoaderData() as {
+    experimentId: string;
+    experiment: any;
+  } | null;
+  const experimentId = data?.experimentId ?? "";
   const initial = data?.experiment ?? null;
+  const navigation = useNavigation();
+  const isNavigating = Boolean(navigation.location);
   return (
     <ExperimentProvider experimentId={experimentId} initialData={initial}>
-      {/* <div className="p-4 text-xl font-semibold flex items-center gap-4">
-        <div>{t("app.title")}</div>
-        <div className="ms-auto">
-          <LanguageSwitcher />
-        </div>
-      </div> */}
+      {isNavigating && (
+        <Spinner/>
+      )}
       <Outlet />
     </ExperimentProvider>
   );
@@ -29,19 +32,18 @@ export async function loader({ request }: { request: Request }) {
   const prolifId = url.searchParams.get("PROLIFIC_PID");
 
   // Avoid infinite loop when already on the required page
-  if (!prolifId && ["/user",'/'].includes(pathname)) {
+  if (!prolifId && ["/user", "/"].includes(pathname)) {
     return redirect("/prolific-required");
   }
 
   if (prolifId) {
-      localStorage.setItem("userId", prolifId);
+    localStorage.setItem("userId", prolifId);
   }
   // Prefetch current experiment
   const experimentId = "exp1";
 
   if (experimentId) {
-      localStorage.setItem("expId", experimentId);
-    
+    localStorage.setItem("expId", experimentId);
   }
   const experiment = await getExperiment(experimentId);
   return { experimentId, experiment };

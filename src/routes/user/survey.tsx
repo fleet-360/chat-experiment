@@ -37,7 +37,7 @@ type SemanticConfig = {
 export default function SurveyPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { register, handleSubmit, control } = useForm<FormValues>({
+  const { register, handleSubmit, control,formState:{isSubmitting} } = useForm<FormValues>({
     defaultValues: {},
   });
 
@@ -276,7 +276,7 @@ export default function SurveyPage() {
                           })}
                         />
                       </SelectTrigger>
-                      <SelectContent >
+                      <SelectContent>
                         <SelectItem value="female">
                           {t("survey.genderFemale", { defaultValue: "Female" })}
                         </SelectItem>
@@ -313,7 +313,11 @@ export default function SurveyPage() {
           </section>
         </CardContent>
         <CardFooter>
-          <Button onClick={handleSubmit(submit)} className="ms-auto">
+          <Button
+            onClick={handleSubmit(submit)}
+            className="ms-auto"
+            disabled={isSubmitting}
+          >
             {t("survey.submit", { defaultValue: "Submit" })}
           </Button>
         </CardFooter>

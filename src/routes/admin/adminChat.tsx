@@ -6,8 +6,6 @@ import { useExperiment } from "../../context/ExperimentContext";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { db } from "../../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { Button } from "../../components/ui/button";
-import { useAdminAutomationScheduler } from "../../services/adminAutomation";
 
 export default function AdminChat() {
   const { experimentId } = useExperiment();
