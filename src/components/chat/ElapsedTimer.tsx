@@ -80,6 +80,7 @@ export function ElapsedTimer({
   useEffect(() => {
     if (completedRef.current) {
       completedRef.current = false;
+      onComplete?.()
     }
   }, [start]);
 

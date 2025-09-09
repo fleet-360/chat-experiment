@@ -1,6 +1,7 @@
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import * as XLSX from "xlsx";
+import { resources } from "../lib/i18n";
 import { hasEmoji } from "../lib/helpers/strings.helpers";
 
 export type ExportSheet = {
@@ -103,38 +104,52 @@ export async function exportGroupsToXlsx(
   const full: { groupId: string; data: GroupDoc }[] = [];
   for (const g of groups) {
     const snap = await getDoc(doc(db, "groups", g.groupId));
-    full.push({ groupId: g.groupId, data: (snap.data() as GroupDoc) || {} });
+    console.log('snap', snap)
+    full.push(snap as any);
   }
-  const sheets = createSheetsFromGroups(full);
+  const sheet = formatGroupsMessagesToSheet(full);
   const filename = opts?.filename ?? `export-${new Date().toISOString().replace(/[:.]/g, "-")}`;
-  createXlsxFile(sheets, filename);
+  createXlsxFile([sheet], filename);
+}
+
+export function formatGroupsMessagesToSheet(groups:any){
+   const sheet: ExportSheet = {
+     name: "Messages",
+     headers: [
+       "senderid",
+       "groupname",
+       "grouptype",
+       "includesEmojy",
+       "message",
+       "timestamp",
+     ],
+     rows: [],
+   };
+   for (const d of groups) {
+     const data = d.data() as GroupDoc | any;
+     const groupType = data?.groupType ?? "";
+     const msgs: any[] = Array.isArray(data?.messages) ? data.messages : [];
+     for (const m of msgs) {
+       sheet.rows.push([
+         m?.senderId ?? "",
+         d.name,
+         groupType,
+         hasEmoji(m?.text ?? ""),
+         m?.text ?? "",
+         toIso(m?.createdAt) ?? "",
+       ]);
+     }
+   }
+
+   return sheet
 }
 
 // Build a single messages sheet across the whole experiment
 export async function buildExperimentMessagesSheet(expId: string): Promise<ExportSheet> {
   const q = query(collection(db, "groups"), where("experimentId", "==", expId));
   const snap = await getDocs(q);
-  const sheet: ExportSheet = {
-    name: "Messages",
-    headers: ["senderid", "groupid", "grouptype","includesEmojy", "message", "timestamp"],
-    rows: [],
-  };
-  for (const d of snap.docs) {
-    const data = d.data() as GroupDoc | any;
-    const groupType = data?.groupType ?? "";
-    const msgs: any[] = Array.isArray(data?.messages) ? data.messages : [];
-    for (const m of msgs) {
-      sheet.rows.push([
-        m?.senderId ?? "",
-        d.id,
-        groupType,
-        hasEmoji(m?.text ?? ""),
-        m?.text ?? "",
-        toIso(m?.createdAt) ?? "",
-      ]);
-    }
-  }
-  return sheet;
+ 
+  return formatGroupsMessagesToSheet(snap.docs);
 }
 
 // Build a survey sheet where each question key is a column
@@ -147,10 +162,10 @@ export async function buildExperimentSurveySheet(expId: string): Promise<ExportS
   const keysSet = new Set<string>();
   for (const e of entries) {
     const ans = (e?.answers ?? {}) as Record<string, unknown>;
-    Object.keys(ans).forEach((k) => keysSet.add(k));
+    Object.keys(ans).sort().forEach((k) => keysSet.add(k));
   }
   const keys = Array.from(keysSet);
-  const headers = ["userid", ...keys];
+  const headers = ["userid", ...mapSurveyKeysToEnglish(keys)];
 
   const sheet: ExportSheet = {
     name: "Survey",
@@ -184,4 +199,20 @@ export async function exportExperimentToXlsx(
   ]);
   const filename = opts?.filename ?? `export-${expId}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   createXlsxFile([messages, survey], filename);
+}
+
+// Helper: return mapping of survey question keys (q1..qN) to their English labels from i18n resources
+export function getEnglishSurveyQuestionsMap(): Record<string, string> {
+  const survey = ((resources as any)?.en?.translation?.survey ?? {}) as Record<string, unknown>;
+  const map: Record<string, string> = {};
+  for (const [k, v] of Object.entries(survey)) {
+    if (/^q\d+$/i.test(k) && typeof v === "string") map[k] = v as string;
+  }
+  return map;
+}
+
+// Helper: map a list of survey keys to English labels when available; leaves non-question keys intact
+export function mapSurveyKeysToEnglish(keys: string[]): string[] {
+  const m = getEnglishSurveyQuestionsMap();
+  return keys.map((k) => m[k] ?? k);
 }

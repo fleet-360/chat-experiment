@@ -28,7 +28,7 @@ export default function AdminChat() {
   const onExportAll = async () => {
     try {
       await exportExperimentToXlsx(experimentId, {
-        filename: `export-all-${experimentId}-${new Date().toISOString().replace(/[:.]/g, "-")}`,
+        filename: `export-all-${experimentId}-${new Date().getTime()}`,
       });
     } catch (e) {
       console.error("Failed to export", e);

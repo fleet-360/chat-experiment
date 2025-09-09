@@ -153,6 +153,7 @@ export const resources = {
         sendAsAdmin: "Send as admin",
         prolificIdPrefix: "PROLIFIC_ID-",
         groupTitle: "Group {{id}}",
+        exportGroup: "Export group chat",
         missingGroup:
           "Missing group assignment for user. Please return to consent.",
         noGroupOnUser: "No group found on user.",

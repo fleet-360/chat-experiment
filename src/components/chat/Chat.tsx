@@ -19,6 +19,7 @@ import ChatInput from "./ChatInput";
 import { useTranslation } from "react-i18next";
 import MessageItem from "./MessageItem";
 import { Button } from "../ui/button";
+import { exportGroupsToXlsx } from "../../services/exportService";
 import { useNavigate } from "react-router";
 import { ElapsedTimer } from "./ElapsedTimer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
@@ -49,7 +50,7 @@ export default function Chat({
   const isAtBottomRef = useRef(true);
   const [isTimeOut, setIsTimeOut] = useState(false)
   const navigate = useNavigate();
-  useAdminAutomationScheduler(groupId);
+  useAdminAutomationScheduler(groupId,isTimeOut);
 
 
   useEffect(() => {
@@ -142,6 +143,27 @@ export default function Chat({
           </CardTitle>
 
           <div className="flex items-center gap-2">
+            {isAdmin && groupId ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={async () => {
+                  try {
+                    await exportGroupsToXlsx([
+                      { groupId },
+                    ], {
+                      filename: `${experiment.data?.id}-${group?.name}-${new Date()
+                        .getTime()}`,
+                    });
+                  } catch (e) {
+                    console.error("Failed to export group", e);
+                  }
+                }}
+                aria-label={t("chat.exportGroup")}
+              >
+                {t("chat.exportGroup")}
+              </Button>
+            ) : null}
             {startDate ? (
               <ElapsedTimer
                 start={startDate}
@@ -196,7 +218,7 @@ export default function Chat({
             if (!value) return;
             if (!groupId) return;
             try {
-              const senderId =isAdmin?null:
+              const senderId =isAdmin?"user-admin":
                 (typeof window !== "undefined" &&
                   localStorage.getItem("userId")) ||
                 "anonymous";
