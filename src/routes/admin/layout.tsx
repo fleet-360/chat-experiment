@@ -40,6 +40,7 @@ export default function AdminLayout() {
 
 // Route loader to protect all /admin/* routes (except /admin/login which is separate)
 export async function loader() {
+  localStorage.removeItem("userId");
   const ok = await requireAdminAuth();
   if (!ok) {
     return redirect("/admin/login");

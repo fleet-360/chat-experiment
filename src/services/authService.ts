@@ -73,8 +73,8 @@ const decideAboutUserGroups = async (userId: string,expId:string) => {
         experimentId:expRef.id,
         groupType:groups.length%2==0 ?"emojy": "noEmojy",
         messages:[],
-        name:`group-${groups.length}`,
-        id:`exp-${expRef.id}-group-${groups.length}`,
+        name:`group-${groups.length+1}`,
+        id:`exp-${expRef.id}-group-${groups.length+1}`,
         createdAt: serverTimestamp(),
       } );
       const newGroups = [...groups,newGroupRef.id];

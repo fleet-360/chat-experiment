@@ -195,18 +195,21 @@ export default function Chat({
             if (!value) return;
             if (!groupId) return;
             try {
-              const senderId =
+              const senderId =isAdmin?null:
                 (typeof window !== "undefined" &&
                   localStorage.getItem("userId")) ||
                 "anonymous";
-              const userIndex = group?.users?.findIndex(
+              const userIndex = Number(group?.users?.findIndex(
                 (id: string) => id == senderId
-              );
+              ));
+              console.log('userIndex', userIndex)
               const asAdmin = !!opts?.asAdmin && isAdmin;
               const senderName = asAdmin
                 ? "admin"
                 : "user-" +
-                  (userIndex ? userIndex + 1 : group?.users?.length ?? 0 + 1);
+                  ( userIndex > -1
+                    ? userIndex + 1
+                    :(( experiment.data?.settings?.usersInGroup ?? 0 )+ 1));
               const gRef = doc(db, "groups", groupId);
               await updateDoc(gRef, {
                 messages: arrayUnion({
