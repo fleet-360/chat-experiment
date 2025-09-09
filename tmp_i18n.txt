@@ -90,14 +90,6 @@ export const resources = {
         remove: "Remove",
         save: "Save",
         user: "User",
-        login: "Login",
-        logout: "Logout",
-        username: "Username",
-        password: "Password",
-        token: "Token",
-        or: "or",
-        invalidCredentials: "Invalid credentials or token.",
-        missingAdminConfig: "Admin credentials are not configured.",
       },
       nav: {
         home: "Home",
@@ -335,9 +327,6 @@ function deepFillMissing(target: any, source: any) {
     }
   }
 }
-
-// reference to avoid TS unused error; parity helper is available for future use
-void deepFillMissing;
 
 
 

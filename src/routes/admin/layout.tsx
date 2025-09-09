@@ -1,8 +1,11 @@
-import { Link, NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet, redirect, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { Button } from "../../components/ui/button";
+import { requireAdminAuth, logoutAdmin } from "../../services/adminAuth";
 
 export default function AdminLayout() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <div className="p-4 ">
       <div className="mb-4 flex items-center gap-4">
@@ -15,11 +18,31 @@ export default function AdminLayout() {
             {t("nav.chat")}
           </NavLink>
         </nav>
-        <div className="ltr:ml-auto rtl:mr-auto  text-xs">
+        <div className="ms-auto flex items-center gap-3 text-xs">
           <Link to="/user" className="underline">{t("common.goToUser")}</Link>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              logoutAdmin();
+              navigate("/admin/login");
+            }}
+          >
+            {t("common.logout")}
+          </Button>
         </div>
       </div>
       <Outlet />
     </div>
   );
+}
+
+// Route loader to protect all /admin/* routes (except /admin/login which is separate)
+export async function loader() {
+  const ok = await requireAdminAuth();
+  if (!ok) {
+    return redirect("/admin/login");
+  }
+  return null;
 }

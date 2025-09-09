@@ -15,12 +15,14 @@ const AdminSettings = () =>
   import("./admin/settings").then((m) => ({ Component: m.default }));
 const AdminChat = () =>
   import("./admin/adminChat").then((m) => ({ Component: m.default }));
+const AdminLogin = () =>
+  import("./admin/login").then((m) => ({ Component: m.default }));
 
 // Layouts
 const UserLayout = () =>
   import("./user/layout").then((m) => ({ Component: m.default }));
 const AdminLayout = () =>
-  import("./admin/layout").then((m) => ({ Component: m.default }));
+  import("./admin/layout").then((m) => ({ Component: m.default, loader: m.loader }));
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +43,10 @@ export const router = createBrowserRouter([
           { path: "survey", lazy: UserQuestions },
           { path: "thank-you", lazy: UserThankYou },
         ],
+      },
+      {
+        path: "admin/login",
+        lazy: AdminLogin,
       },
       {
         path: "admin",
