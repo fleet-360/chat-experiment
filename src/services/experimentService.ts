@@ -94,6 +94,26 @@ export function listenExperimentGroups(
   });
 }
 
+/** Listen to a single group document; returns Unsubscribe. */
+export function listenGroup(
+  groupId: string,
+  onChange: (group: { groupId: string; groupType?: string; createdAt?: any } | null) => void
+): Unsubscribe {
+  const ref = doc(db, "groups", groupId);
+  return onSnapshot(ref, (snap) => {
+    if (!snap.exists()) {
+      onChange(null);
+      return;
+    }
+    const data = snap.data() as any;
+    onChange({
+      groupId: snap.id,
+      groupType: data?.groupType,
+      createdAt: data?.createdAt,
+    });
+  });
+}
+
 /** Transactionally send an admin message once per plan item. */
 function sanitizeKey(v: string): string {
   return String(v).replace(/[^a-zA-Z0-9_-]/g, "_");

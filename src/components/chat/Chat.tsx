@@ -48,7 +48,7 @@ export default function Chat({
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const isAtBottomRef = useRef(true);
   const navigate = useNavigate();
-  useAdminAutomationScheduler();
+  useAdminAutomationScheduler(groupId);
 
 
   useEffect(() => {

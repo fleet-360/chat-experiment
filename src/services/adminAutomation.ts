@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useExperiment } from "../context/ExperimentContext";
-import { listenExperimentGroups, sendAdminMessageOnce } from "./experimentService";
+import { listenExperimentGroups, listenGroup, sendAdminMessageOnce } from "./experimentService";
 import { toDate } from "../lib/helpers/dateTime.helper";
 import type { ChatMessagePlanItem, ChatGroupType } from "../types/app";
 
@@ -12,7 +12,7 @@ function derivePlanVersion(expData: any): string {
   return String(base) + ":" + count;
 }
 
-export function useAdminAutomationScheduler() {
+export function useAdminAutomationScheduler(currentGroupId?: string) {
   const enabled = true
   const { experimentId, data } = useExperiment();
   const plan: ChatMessagePlanItem[] = useMemo(
@@ -24,14 +24,24 @@ export function useAdminAutomationScheduler() {
     { groupId: string; groupType?: ChatGroupType; createdAt?: any }[]
   >([]);
 
-  // Listen to groups
+  // Listen to groups (scope to current group when provided)
   useEffect(() => {
     if (!enabled) return;
+    if (currentGroupId) {
+      const unsub = listenGroup(currentGroupId, (g) => {
+        if (!g) {
+          setGroups([]);
+          return;
+        }
+        setGroups([{ groupId: g.groupId, groupType: g.groupType as any, createdAt: g.createdAt }]);
+      });
+      return () => unsub();
+    }
     const unsub = listenExperimentGroups(experimentId, (list) => {
       setGroups(list.map((g) => ({ groupId: g.groupId, groupType: g.groupType as any, createdAt: g.createdAt })));
     });
     return () => unsub();
-  }, [enabled, experimentId]);
+  }, [enabled, experimentId, currentGroupId]);
 
   // Tick and dispatch due messages
   const inFlight = useMemo(() => new Set<string>(), []);
@@ -45,7 +55,6 @@ export function useAdminAutomationScheduler() {
         const created = toDate(g.createdAt);
         if (!created) continue;
         const elapsed = Math.floor((now - created.getTime()) / 1000);
-        console.log('elapsed', elapsed)
         const due = plan
           .map((p, idx) => ({ p, idx }))
           .filter(({ p }) => (!g.groupType || p.groupType === g.groupType) && p.timeInChat <= elapsed);
