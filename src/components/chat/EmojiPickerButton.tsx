@@ -50,6 +50,7 @@ export default function EmojiPickerButton({ onPick, className, disabled }: Emoji
             height={380}
             skinTonesDisabled
             lazyLoadEmojis
+            previewConfig={{showPreview:false}}
             emojiStyle={EmojiStyle.APPLE}
           />
         </div>

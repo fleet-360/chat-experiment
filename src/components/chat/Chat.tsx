@@ -47,6 +47,7 @@ export default function Chat({
   const listRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const isAtBottomRef = useRef(true);
+  const [isTimeOut, setIsTimeOut] = useState(false)
   const navigate = useNavigate();
   useAdminAutomationScheduler(groupId);
 
@@ -119,12 +120,16 @@ export default function Chat({
               <Tooltip>
                 <TooltipTrigger>
                   <span className="block text-muted-foreground text-sm max-w-sm truncate ">
-                    {group?.users.map((id) => `${t("chat.prolificIdPrefix")}${id}`).join(", ")}
+                    {group?.users
+                      .map((id) => `${t("chat.prolificIdPrefix")}${id}`)
+                      .join(", ")}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <span className=" ">
-                    {group?.users.map((id) => `${t("chat.prolificIdPrefix")}${id}`).join(", ")}
+                    {group?.users
+                      .map((id) => `${t("chat.prolificIdPrefix")}${id}`)
+                      .join(", ")}
                   </span>
                 </TooltipContent>
               </Tooltip>
@@ -138,18 +143,22 @@ export default function Chat({
           <div className="flex items-center gap-2">
             {startDate ? (
               <ElapsedTimer
-              start={startDate}
-              timers={experiment.data?.ChatTimersplan.map((timer)=>timer.time)}
+                start={startDate}
+                timers={experiment.data?.ChatTimersplan.map(
+                  (timer) => timer.time
+                )}
                 className="text-sm text-muted-foreground"
+                onComplete={() => setIsTimeOut(true)}
+
               />
             ) : null}
-            <Button
+            {/* <Button
               size="sm"
               variant="link"
               onClick={() => navigate("/user/survey")}
             >
               {t("nav.questions")}
-            </Button>
+            </Button> */}
           </div>
         </div>
       </CardHeader>
@@ -176,8 +185,9 @@ export default function Chat({
           <div ref={bottomRef} />
         </div>
       </CardContent>
-      <CardFooter>
-        <ChatInput
+      <CardFooter className="border-t bg-muted/30">
+        {!isTimeOut ? (
+          <ChatInput
           placeholder={t("chat.placeholder")}
           showAdminSwitch={isAdmin}
           onSend={async (value, opts) => {
@@ -214,6 +224,16 @@ export default function Chat({
           withEmojy={group?.groupType !== "noEmojy" || isAdmin}
           className="w-full"
         />
+        ) : (
+          <div className="w-full flex items-center justify-between gap-3 py-2">
+            <p className="text-sm text-muted-foreground">
+              {t("chat.sessionEnded")}
+            </p>
+            <Button size="sm" variant={"link"} onClick={() => navigate("/user/survey")}>
+              {t("pages.goToSurvey")}
+            </Button>
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

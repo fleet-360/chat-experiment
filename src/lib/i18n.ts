@@ -135,6 +135,7 @@ export const resources = {
         totalTimersMustBe: "Total timers must be {{expected}} (current {{current}})",
         totalTimersMustEqualDuration: "Total timers ({{sum}}) must equal total duration ({{total}}).",
         settingsSaved: "Settings saved.",
+        goToSurvey: "Go to survey",
       },
       chat: {
         noMessages: "No messages yet.",
@@ -147,6 +148,7 @@ export const resources = {
         missingGroup:
           "Missing group assignment for user. Please return to consent.",
         noGroupOnUser: "No group found on user.",
+        sessionEnded: "The session has ended. Thank you for participating.",
       },
       consent: {
         intro: "Hello and welcome to this survey.",
@@ -334,7 +336,7 @@ i18n
   .init({
     resources,
     fallbackLng: "en",
-    supportedLngs: ["en", "he"],
+    supportedLngs: ["en"],
     detection: {
       order: ["querystring", "localStorage", "navigator"],
       caches: ["localStorage"],
