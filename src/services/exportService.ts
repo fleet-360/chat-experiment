@@ -1,4 +1,11 @@
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../lib/firebase";
 import * as XLSX from "xlsx";
 import { resources } from "../lib/i18n";
@@ -31,10 +38,19 @@ function toIso(d: any): string | undefined {
   }
 }
 
-export function createSheetsFromGroups(groups: { groupId: string; data: GroupDoc }[]): ExportSheet[] {
+export function createSheetsFromGroups(
+  groups: { groupId: string; data: GroupDoc }[]
+): ExportSheet[] {
   const groupsSheet: ExportSheet = {
     name: "Groups",
-    headers: ["groupId", "name", "groupType", "createdAt", "users", "experimentId"],
+    headers: [
+      "groupId",
+      "name",
+      "groupType",
+      "createdAt",
+      "users",
+      "experimentId",
+    ],
     rows: [],
   };
 
@@ -86,7 +102,9 @@ export function createXlsxFile(sheets: ExportSheet[], filename: string): void {
     XLSX.utils.book_append_sheet(wb, ws, s.name.substring(0, 31));
   }
   const data = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-  const blob = new Blob([data], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const blob = new Blob([data], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -104,65 +122,76 @@ export async function exportGroupsToXlsx(
   const full: { groupId: string; data: GroupDoc }[] = [];
   for (const g of groups) {
     const snap = await getDoc(doc(db, "groups", g.groupId));
-    console.log('snap', snap)
+    console.log("snap", snap);
     full.push(snap as any);
   }
   const sheet = formatGroupsMessagesToSheet(full);
-  const filename = opts?.filename ?? `export-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+  const filename =
+    opts?.filename ??
+    `export-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   createXlsxFile([sheet], filename);
 }
 
-export function formatGroupsMessagesToSheet(groups:any){
-   const sheet: ExportSheet = {
-     name: "Messages",
-     headers: [
-       "senderid",
-       "groupname",
-       "grouptype",
-       "includesEmojy",
-       "message",
-       "timestamp",
-     ],
-     rows: [],
-   };
-   for (const d of groups) {
-     const data = d.data() as GroupDoc | any;
-     const groupType = data?.groupType ?? "";
-     const msgs: any[] = Array.isArray(data?.messages) ? data.messages : [];
-     for (const m of msgs) {
-       sheet.rows.push([
-         m?.senderId ?? "",
-         d.name,
-         groupType,
-         hasEmoji(m?.text ?? ""),
-         m?.text ?? "",
-         toIso(m?.createdAt) ?? "",
-       ]);
-     }
-   }
+export function formatGroupsMessagesToSheet(groups: any) {
+  const sheet: ExportSheet = {
+    name: "Messages",
+    headers: [
+      "senderid",
+      "groupname",
+      "grouptype",
+      "includesEmoji",
+      "message",
+      "timestamp",
+    ],
+    rows: [],
+  };
 
-   return sheet
+  for (const d of groups) {
+    const data = d.data() as GroupDoc | any;
+    const groupType = data?.groupType ?? "";
+    const msgs: any[] = Array.isArray(data?.messages) ? data.messages : [];
+    for (const m of msgs) {
+      sheet.rows.push([
+        m?.senderId ?? "",
+        data.name,
+        groupType,
+        hasEmoji(m?.text ?? ""),
+        m?.text ?? "",
+        toIso(m?.createdAt) ?? "",
+      ]);
+    }
+  }
+
+  return sheet;
 }
 
 // Build a single messages sheet across the whole experiment
-export async function buildExperimentMessagesSheet(expId: string): Promise<ExportSheet> {
+export async function buildExperimentMessagesSheet(
+  expId: string
+): Promise<ExportSheet> {
   const q = query(collection(db, "groups"), where("experimentId", "==", expId));
   const snap = await getDocs(q);
- 
+
   return formatGroupsMessagesToSheet(snap.docs);
 }
 
 // Build a survey sheet where each question key is a column
-export async function buildExperimentSurveySheet(expId: string): Promise<ExportSheet> {
+export async function buildExperimentSurveySheet(
+  expId: string
+): Promise<ExportSheet> {
   const expSnap = await getDoc(doc(db, "experiments", expId));
   const data = (expSnap.data() as any) || {};
-  const entries: any[] = Array.isArray(data?.surveyAnswers) ? data.surveyAnswers : [];
+  const entries: any[] = Array.isArray(data?.surveyAnswers)
+    ? data.surveyAnswers
+    : [];
 
   // Collect all keys used across answers
   const keysSet = new Set<string>();
   for (const e of entries) {
     const ans = (e?.answers ?? {}) as Record<string, unknown>;
-    Object.keys(ans).sort().forEach((k) => keysSet.add(k));
+    Object.keys(ans)
+      .sort()
+      .forEach((k) => keysSet.add(k));
   }
   const keys = Array.from(keysSet);
   const headers = ["userid", ...mapSurveyKeysToEnglish(keys)];
@@ -175,7 +204,9 @@ export async function buildExperimentSurveySheet(expId: string): Promise<ExportS
 
   for (const e of entries) {
     const ans = (e?.answers ?? {}) as Record<string, unknown>;
-    const row: (string | number | boolean | null | undefined)[] = [e?.userId ?? ""];
+    const row: (string | number | boolean | null | undefined)[] = [
+      e?.userId ?? "",
+    ];
     for (const k of keys) {
       const v = ans[k];
       // Normalize objects to JSON strings; primitives as-is
@@ -197,13 +228,18 @@ export async function exportExperimentToXlsx(
     buildExperimentMessagesSheet(expId),
     buildExperimentSurveySheet(expId),
   ]);
-  const filename = opts?.filename ?? `export-${expId}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+  const filename =
+    opts?.filename ??
+    `export-${expId}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
   createXlsxFile([messages, survey], filename);
 }
 
 // Helper: return mapping of survey question keys (q1..qN) to their English labels from i18n resources
 export function getEnglishSurveyQuestionsMap(): Record<string, string> {
-  const survey = ((resources as any)?.en?.translation?.survey ?? {}) as Record<string, unknown>;
+  const survey = ((resources as any)?.en?.translation?.survey ?? {}) as Record<
+    string,
+    unknown
+  >;
   const map: Record<string, string> = {};
   for (const [k, v] of Object.entries(survey)) {
     if (/^q\d+$/i.test(k) && typeof v === "string") map[k] = v as string;

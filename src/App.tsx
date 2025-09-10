@@ -49,7 +49,7 @@ export async function loader({ request }: { request: Request }) {
     localStorage.setItem("userId", prolifId);
   }
   // Prefetch current experiment
-  const experimentId = "exp2";
+  const experimentId = "exp4";
 
   if (experimentId) {
     localStorage.setItem("expId", experimentId);

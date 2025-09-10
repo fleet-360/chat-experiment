@@ -22,7 +22,8 @@ export const resources = {
         motivationTitle: "Motivation",
         demographicsTitle: "Demographics",
         thankYouTitle: "Thank you!",
-        thankYouBody: "Your responses were recorded. You may close this window or return to the app.",
+        thankYouBody:
+          "Your responses were recorded. You may close this window or return to the app.",
         notAtAll: "Not at all",
         extremely: "Extremely",
         stronglyDisagree: "Strongly disagree",
@@ -80,7 +81,7 @@ export const resources = {
         age: "Please indicate your age",
         submit: "Submit",
       },
-      app: { title: "chat-experiment",finish:"finish" },
+      app: { title: "chat-experiment", finish: "finish" },
       common: {
         userArea: "User Area",
         adminArea: "Admin Area",
@@ -140,8 +141,10 @@ export const resources = {
         totalDuration: "Total duration",
         mmssPlaceholder: "mm:ss",
         egTime: "e.g. 10:00",
-        totalTimersMustBe: "Total timers must be {{expected}} (current {{current}})",
-        totalTimersMustEqualDuration: "Total timers ({{sum}}) must equal total duration ({{total}}).",
+        totalTimersMustBe:
+          "Total timers must be {{expected}} (current {{current}})",
+        totalTimersMustEqualDuration:
+          "Total timers ({{sum}}) must equal total duration ({{total}}).",
         settingsSaved: "Settings saved.",
         goToSurvey: "Go to survey",
       },
@@ -149,7 +152,7 @@ export const resources = {
         noMessages: "No messages yet.",
         placeholder: "Type your message",
         send: "Send",
-        admin: "Admin",
+        admin: "System",
         sendAsAdmin: "Send as admin",
         prolificIdPrefix: "PROLIFIC_ID-",
         groupTitle: "Group {{id}}",
@@ -257,7 +260,7 @@ export const resources = {
         age: "אנא ציין/ני את גילך",
         submit: "שליחה",
       },
-      app: { title: "ניסוי צ'אט",finish:'סיום' },
+      app: { title: "ניסוי צ'אט", finish: "סיום" },
       common: {
         userArea: "אזור משתמש",
         adminArea: "אזור מנהל",
@@ -329,8 +332,12 @@ function deepFillMissing(target: any, source: any) {
     if (tv == null) {
       (target as any)[key] = sv;
     } else if (
-      typeof sv === "object" && sv != null && !Array.isArray(sv) &&
-      typeof tv === "object" && tv != null && !Array.isArray(tv)
+      typeof sv === "object" &&
+      sv != null &&
+      !Array.isArray(sv) &&
+      typeof tv === "object" &&
+      tv != null &&
+      !Array.isArray(tv)
     ) {
       deepFillMissing(tv, sv);
     }
@@ -339,8 +346,6 @@ function deepFillMissing(target: any, source: any) {
 
 // reference to avoid TS unused error; parity helper is available for future use
 void deepFillMissing;
-
-
 
 i18n
   .use(LanguageDetector)
