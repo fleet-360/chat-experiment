@@ -6,9 +6,15 @@ export const resources = {
   en: {
     translation: {
       survey: {
-        title: "Survey",
+        title:
+          "Please answer the questions that appear on the following pages about your task experience. Thank you.",
         saveFailed: "Failed to save. Please try again.",
         submitted: "Thanks! Your responses were recorded.",
+        next: "Next",
+        back: "Back",
+        validationMissing: "Please answer all questions on this page:",
+        finalThanks: "Thank you for completing this study.",
+        finalInstruction: "Press submit to return to the Prolific page.",
         ideaGenTitle: "Idea generation process",
         ideaSelectTitle: "Idea selection process",
         groupCompetenceTitle: "Group Competence",
@@ -17,7 +23,7 @@ export const resources = {
         groupExpressionTitle: "Expression",
         groupDynamicsTitle: "Group dynamics",
         groupEvalTitle: "Group evaluation",
-        playfulnessTitle: "Perceived playfulness",
+        playfulnessTitle: "",
         emojiUseTitle: "Emoji use",
         motivationTitle: "Motivation",
         demographicsTitle: "Demographics",
@@ -71,6 +77,7 @@ export const resources = {
         q24: "Participating in the task aroused my imagination.",
         q25: "To what extent do you generally use emojis in chat conversations?",
         q26: "To what extent was it important for you to perform well in this study?",
+        q27: "It is safe to take a risk on this team.",
         gender: "Please select your gender",
         chooseOption: "Choose an option",
         genderFemale: "Female",
@@ -152,7 +159,7 @@ export const resources = {
         noMessages: "No messages yet.",
         placeholder: "Type your message",
         send: "Send",
-        admin: "System",
+        admin: "Experimenter",
         sendAsAdmin: "Send as admin",
         prolificIdPrefix: "PROLIFIC_ID-",
         groupTitle: "Group {{id}}",
@@ -161,25 +168,31 @@ export const resources = {
           "Missing group assignment for user. Please return to consent.",
         noGroupOnUser: "No group found on user.",
         sessionEnded: "The session has ended. Thank you for participating.",
+        waitingForUsers:
+          "Waiting for {{count}} more users to join before start",
       },
       consent: {
         intro: "Hello and welcome to this survey.",
         readConsent:
           "Before you begin, please read the consent form on this page.",
         statement: {
-          title: "📝 Consent Statement",
-          p1: "You are participating in a study being performed by researchers from The Coller School of Management at Tel Aviv University. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation at any time, without adverse consequences.",
-          p2: "Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. If you have any questions about the research, you can contact the principal researcher, Prof. Shai Danziger at shaid@tauex.tau.ac.il",
+          title: "Consent Statement",
+          p1: "You are participating in academic research. Your participation is voluntary, and your anonymity is guaranteed. The researchers will not receive any personal information about you.",
+          p2: "If you have any questions about the research, please contact the principal investigator, Prof. Shai Danziger, at shdanziger@gmail.com",
         },
         about: {
-          title: "🔍 About the Study",
-          p1: "In this study, you’ll take part in a short online group activity. After giving your consent, you’ll receive a link that will take you to a group chatroom built especially for this research. You’ll be randomly placed in a small group with other participants. Once your group is ready, you’ll work together on a fun creativity task: first, coming up with as many different uses as you can for a common object, and then deciding together which idea is the most creative.",
-          p2: "After completing the task, you will also be asked a series of questions about it and about yourself.",
-          p3: "During the task, your conversations will be recorded and analyzed for research purposes. All data will be stored securely and used only in anonymized form, so that no individual participant can be identified.",
+          title: "Group creativity task",
+          p1: "In this study, you will work with others on a group task. You will be randomly assigned to a four-person group, and together you will generate ideas in an online text-based chatroom. Each group member will be identified only as user-1, user-2, user-3, or user-4, so that your identity remains anonymous.",
+          p2: "After providing consent, you’ll receive a link to a chatroom where you will communicate with your group members. The task will begin only after your group has four members and is full. Once the task is complete, you will be asked a series of questions about the activity and yourself.",
+          p3: "Please do not use any AI tools to generate responses. There are no right or wrong answers.",
+          p4: "During the task, only the written chat (similar to a WhatsApp conversation) will be recorded. No video or camera will be used. All data will be stored securely and analyzed only in anonymized form, so that no individual participant can be identified.",
+          p5: "Please consent by clicking the >> button to continue.",
+          p6: "Otherwise, please exit the study at this time.",
         },
+
         cta: {
-          accept: "Agree",
-          decline: "Disagree",
+          accept: "Continue",
+          decline: "Exit",
         },
       },
     },
@@ -189,6 +202,11 @@ export const resources = {
       survey: {
         title: "שאלון",
         submitted: "תודה! תשובותיך נרשמו.",
+        next: "הבא",
+        back: "חזרה",
+        validationMissing: "אנא השיבו על כל השאלות בעמוד:",
+        finalThanks: "תודה שסיימת להשתתף במחקר.",
+        finalInstruction: "לחצ/י שלח/י כדי לחזור לדף של Prolific.",
         ideaGenTitle: "תהליך יצירת הרעיונות",
         ideaSelectTitle: "תהליך בחירת הרעיון",
         groupCompetenceTitle: "כשירות הקבוצה",
@@ -250,6 +268,7 @@ export const resources = {
         q24: "ההשתתפות במשימה הציתה את הדמיון שלי.",
         q25: "באיזו מידה אתה/את משתמש/ת בדרך כלל באימוג'ים בשיחות צ'אט?",
         q26: "עד כמה היה חשוב לך להצליח במחקר הזה?",
+        q27: "בטוח לקחת סיכון בצוות הזה.",
         gender: "אנא בחר/י את המגדר שלך",
         chooseOption: "בחר/י אפשרות",
         genderFemale: "נקבה",
@@ -297,6 +316,9 @@ export const resources = {
         groupTitle: "קבוצה {{id}}",
         missingGroup: "חסרה שיוכות לקבוצה עבור המשתמש. אנא חזרו למסך ההסכמה.",
         noGroupOnUser: "לא נמצאה קבוצה למשתמש.",
+        sessionEnded: "הפגישה הסתיימה. תודה על השתתפותך.",
+        waitingForUsers:
+          "ממתינים ל-{{count}} משתתפים נוספים להצטרף לפני ההתחלה",
       },
       consent: {
         intro: "שלום וברוכים הבאים לסקר זה.",

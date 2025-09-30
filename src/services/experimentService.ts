@@ -1,9 +1,21 @@
-import { doc, updateDoc, getDoc, setDoc, getDocs, where, query, collection, onSnapshot, runTransaction, Timestamp, type Unsubscribe } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  setDoc,
+  getDocs,
+  where,
+  query,
+  collection,
+  onSnapshot,
+  runTransaction,
+  Timestamp,
+  type Unsubscribe,
+} from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { SurveyAnswersPayload } from "../types/app";
 import type { FormValues } from "../routes/admin/settings";
 import { toSeconds } from "../lib/helpers/dateTime.helper";
-
 
 /**
  * Append a user's survey answers to an experiment document under `surveyAnswers` array.
@@ -26,7 +38,9 @@ export async function saveSurveyAnswers(
     return;
   }
   const data = snap.data() as any;
-  const current: any[] = Array.isArray(data?.surveyAnswers) ? data.surveyAnswers : [];
+  const current: any[] = Array.isArray(data?.surveyAnswers)
+    ? data.surveyAnswers
+    : [];
   const filtered = current.filter((entry) => entry && entry.userId !== userId);
   await updateDoc(expRef, { surveyAnswers: [...filtered, payload] });
 }
@@ -52,9 +66,8 @@ export async function getExperiment(expId: string) {
   return { id: snap.id, ...(snap.data() as any) } as any;
 }
 
-
 export async function saveExperementSettings(
-  expId:string,
+  expId: string,
   values: FormValues,
   totalDuration: number
 ) {
@@ -79,7 +92,16 @@ export async function saveExperementSettings(
 /** Listen to groups under an experiment; returns Unsubscribe. */
 export function listenExperimentGroups(
   expId: string,
-  onChange: (groups: { groupId: string; groupName: string; users?: string[]; groupType?: string; createdAt?: any }[]) => void
+  onChange: (
+    groups: {
+      groupId: string;
+      groupName: string;
+      users?: string[];
+      groupType?: string;
+      createdAt?: any;
+      startedAt?: any;
+    }[]
+  ) => void
 ): Unsubscribe {
   const q = query(collection(db, "groups"), where("experimentId", "==", expId));
   return onSnapshot(q, (snap) => {
@@ -89,6 +111,7 @@ export function listenExperimentGroups(
       users: (d.data() as any).users ?? [],
       groupType: (d.data() as any).groupType,
       createdAt: (d.data() as any).createdAt,
+      startedAt: (d.data() as any).startedAt,
     }));
     onChange(list);
   });
@@ -97,7 +120,14 @@ export function listenExperimentGroups(
 /** Listen to a single group document; returns Unsubscribe. */
 export function listenGroup(
   groupId: string,
-  onChange: (group: { groupId: string; groupType?: string; createdAt?: any } | null) => void
+  onChange: (
+    group: {
+      groupId: string;
+      groupType?: string;
+      createdAt?: any;
+      startedAt?: any;
+    } | null
+  ) => void
 ): Unsubscribe {
   const ref = doc(db, "groups", groupId);
   return onSnapshot(ref, (snap) => {
@@ -110,6 +140,7 @@ export function listenGroup(
       groupId: snap.id,
       groupType: data?.groupType,
       createdAt: data?.createdAt,
+      startedAt: data?.startedAt,
     });
   });
 }
@@ -139,7 +170,10 @@ export async function sendAdminMessageOnce(
       : false;
     const already = !!markerPath
       .split(".")
-      .reduce((acc: any, key) => (acc && acc[key] != null ? acc[key] : undefined), data);
+      .reduce(
+        (acc: any, key) => (acc && acc[key] != null ? acc[key] : undefined),
+        data
+      );
     if (already || hasMessage) {
       // Ensure marker exists if message exists
       if (!already && hasMessage) {

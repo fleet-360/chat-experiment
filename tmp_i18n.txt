@@ -151,13 +151,13 @@ export const resources = {
         sessionEnded: "The session has ended. Thank you for participating.",
       },
       consent: {
-        intro: "Hello and welcome to this survey.",
+        intro: "Hello and welcome to this study about group creativity.",
         readConsent:
-          "Before you begin, please read the consent form on this page.",
+          "Before you begin, please read the consent form and task description on this page.",
         statement: {
-          title: "📝 Consent Statement",
-          p1: "You are participating in a study being performed by researchers from The Coller School of Management at Tel Aviv University. Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline further participation at any time, without adverse consequences.",
-          p2: "Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you. If you have any questions about the research, you can contact the principal researcher, Prof. Shai Danziger at shaid@tauex.tau.ac.il",
+          title: "Consent Statement",
+          p1: "You are participating in academic research. Your participation is voluntary, and your anonymity is guaranteed. The researchers will not receive any personal information about you.",
+          p2: "If you have any questions about the research, please contact the principal investigator, Prof. Shai Danziger, at shdanziger@gmail.com",
         },
         about: {
           title: "🔍 About the Study",

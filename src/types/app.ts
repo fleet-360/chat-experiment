@@ -24,7 +24,7 @@ export interface Experiment {
   settings: ExperimentSettings;
   ChatMessagesplan: ChatMessagePlanItem[];
   ChatTimersplan: ChatTimerPlanItem[];
-  name:string
+  name: string;
 }
 
 export interface GroupMessage {
@@ -41,7 +41,8 @@ export interface Group {
   name: string;
   messages: GroupMessage[];
   createdAt: Date;
-  experimentId:string
+  startedAt?: Date;
+  experimentId: string;
 }
 
 export interface UserProfile {

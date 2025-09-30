@@ -42,16 +42,15 @@ export default function Chat({
   const [messages, setMessages] = useState<
     (GroupMessage & { text?: string })[]
   >([]);
-  const experiment = useExperiment()
+  const experiment = useExperiment();
   const [group, setGroup] = useState<Group | undefined>(undefined);
   const { t } = useTranslation();
   const listRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const isAtBottomRef = useRef(true);
-  const [isTimeOut, setIsTimeOut] = useState(false)
+  const [isTimeOut, setIsTimeOut] = useState(false);
   const navigate = useNavigate();
-  useAdminAutomationScheduler(groupId,isTimeOut);
-
+  useAdminAutomationScheduler(groupId, isTimeOut);
 
   useEffect(() => {
     if (!groupId) return;
@@ -97,19 +96,15 @@ export default function Chat({
     if (isAtBottomRef.current) requestAnimationFrame(scrollToBottom);
   }, [messages]);
 
-  // Derive a reasonable start time: prefer group's createdAt, otherwise first message time
+  // Start time: only when group is full (startedAt). Until then show waiting message.
   const startDate = useMemo(() => {
-    if (group?.createdAt) return toDate(group.createdAt);
-    let min: number | null = null;
-    for (const m of messages) {
-      const d = toDate((m as any).createdAt);
-      if (d) {
-        const t = d.getTime();
-        if (min === null || t < min) min = t;
-      }
-    }
-    return min != null ? new Date(min) : null;
-  }, [group?.experimentId, messages]);
+    if ((group as any)?.startedAt) return toDate((group as any).startedAt);
+    return null;
+  }, [group?.experimentId, (group as any)?.startedAt]);
+
+  const capacity = experiment.data?.settings?.usersInGroup ?? 4;
+  const usersCount = group?.users?.length ?? 0;
+  const remainingToStart = Math.max(capacity - usersCount, 0);
 
   return (
     <Card className={className}>
@@ -149,11 +144,10 @@ export default function Chat({
                 variant="secondary"
                 onClick={async () => {
                   try {
-                    await exportGroupsToXlsx([
-                      { groupId },
-                    ], {
-                      filename: `${experiment.data?.id}-${group?.name}-${new Date()
-                        .getTime()}`,
+                    await exportGroupsToXlsx([{ groupId }], {
+                      filename: `${experiment.data?.id}-${
+                        group?.name
+                      }-${new Date().getTime()}`,
                     });
                   } catch (e) {
                     console.error("Failed to export group", e);
@@ -172,9 +166,12 @@ export default function Chat({
                 )}
                 className="text-sm text-muted-foreground"
                 onComplete={() => setIsTimeOut(true)}
-
               />
-            ) : null}
+            ) : (
+              <div className="text-sm text-muted-foreground">
+                {t("chat.waitingForUsers", { count: remainingToStart })}
+              </div>
+            )}
             {/* <Button
               size="sm"
               variant="link"
@@ -185,7 +182,7 @@ export default function Chat({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent style={{ backgroundColor: "#e0f7e9" }}>
         <div
           ref={listRef}
           onScroll={handleScroll}
@@ -211,51 +208,56 @@ export default function Chat({
       <CardFooter className="border-t bg-muted/30 py-2 ">
         {!isTimeOut ? (
           <ChatInput
-          placeholder={t("chat.placeholder")}
-          showAdminSwitch={isAdmin}
-          onSend={async (value, opts) => {
-            value = value.trim();
-            if (!value) return;
-            if (!groupId) return;
-            try {
-              const senderId =isAdmin?"user-admin":
-                (typeof window !== "undefined" &&
-                  localStorage.getItem("userId")) ||
-                "anonymous";
-              const userIndex = Number(group?.users?.findIndex(
-                (id: string) => id == senderId
-              ));
-              console.log('userIndex', userIndex)
-              const asAdmin = !!opts?.asAdmin && isAdmin;
-              const senderName = asAdmin
-                ? "admin"
-                : "user-" +
-                  ( userIndex > -1
-                    ? userIndex + 1
-                    :(( experiment.data?.settings?.usersInGroup ?? 0 )+ 1));
-              const gRef = doc(db, "groups", groupId);
-              await updateDoc(gRef, {
-                messages: arrayUnion({
-                  senderId,
-                  senderName,
-                  isAdmin: asAdmin,
-                  createdAt: Timestamp.now(),
-                  text: value,
-                }),
-              });
-            } catch (err) {
-              console.error("Failed to send message", err);
-            }
-          }}
-          withEmojy={group?.groupType !== "noEmojy" || isAdmin}
-          className="w-full"
-        />
+            placeholder={t("chat.placeholder")}
+            showAdminSwitch={isAdmin}
+            onSend={async (value, opts) => {
+              value = value.trim();
+              if (!value) return;
+              if (!groupId) return;
+              try {
+                const senderId = isAdmin
+                  ? "user-admin"
+                  : (typeof window !== "undefined" &&
+                      localStorage.getItem("userId")) ||
+                    "anonymous";
+                const userIndex = Number(
+                  group?.users?.findIndex((id: string) => id == senderId)
+                );
+                console.log("userIndex", userIndex);
+                const asAdmin = !!opts?.asAdmin && isAdmin;
+                const senderName = asAdmin
+                  ? "admin"
+                  : "user-" +
+                    (userIndex > -1
+                      ? userIndex + 1
+                      : (experiment.data?.settings?.usersInGroup ?? 0) + 1);
+                const gRef = doc(db, "groups", groupId);
+                await updateDoc(gRef, {
+                  messages: arrayUnion({
+                    senderId,
+                    senderName,
+                    isAdmin: asAdmin,
+                    createdAt: Timestamp.now(),
+                    text: value,
+                  }),
+                });
+              } catch (err) {
+                console.error("Failed to send message", err);
+              }
+            }}
+            withEmojy={group?.groupType !== "noEmojy" || isAdmin}
+            className="w-full"
+          />
         ) : (
           <div className="w-full flex items-center justify-between gap-3 py-2">
             <p className="text-sm text-muted-foreground">
               {t("chat.sessionEnded")}
             </p>
-            <Button size="sm" variant={"link"} onClick={() => navigate("/user/survey")}>
+            <Button
+              size="sm"
+              variant={"link"}
+              onClick={() => navigate("/user/survey")}
+            >
               {t("pages.goToSurvey")}
             </Button>
           </div>

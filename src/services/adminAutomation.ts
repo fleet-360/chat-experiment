@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useExperiment } from "../context/ExperimentContext";
-import { listenExperimentGroups, listenGroup, sendAdminMessageOnce } from "./experimentService";
+import {
+  listenExperimentGroups,
+  listenGroup,
+  sendAdminMessageOnce,
+} from "./experimentService";
 import { toDate } from "../lib/helpers/dateTime.helper";
 import type { ChatMessagePlanItem, ChatGroupType } from "../types/app";
 
@@ -12,7 +16,10 @@ function derivePlanVersion(expData: any): string {
   return String(base) + ":" + count;
 }
 
-export function useAdminAutomationScheduler(currentGroupId?: string,isTimeOut:boolean=false) {
+export function useAdminAutomationScheduler(
+  currentGroupId?: string,
+  isTimeOut: boolean = false
+) {
   const enabled = !isTimeOut;
   const { experimentId, data } = useExperiment();
   const plan: ChatMessagePlanItem[] = useMemo(
@@ -21,7 +28,12 @@ export function useAdminAutomationScheduler(currentGroupId?: string,isTimeOut:bo
   );
   const planVersion = useMemo(() => derivePlanVersion(data), [data]);
   const [groups, setGroups] = useState<
-    { groupId: string; groupType?: ChatGroupType; createdAt?: any }[]
+    {
+      groupId: string;
+      groupType?: ChatGroupType;
+      createdAt?: any;
+      startedAt?: any;
+    }[]
   >([]);
 
   // Listen to groups (scope to current group when provided)
@@ -33,12 +45,26 @@ export function useAdminAutomationScheduler(currentGroupId?: string,isTimeOut:bo
           setGroups([]);
           return;
         }
-        setGroups([{ groupId: g.groupId, groupType: g.groupType as any, createdAt: g.createdAt }]);
+        setGroups([
+          {
+            groupId: g.groupId,
+            groupType: g.groupType as any,
+            createdAt: g.createdAt,
+            startedAt: g.startedAt,
+          },
+        ]);
       });
       return () => unsub();
     }
     const unsub = listenExperimentGroups(experimentId, (list) => {
-      setGroups(list.map((g) => ({ groupId: g.groupId, groupType: g.groupType as any, createdAt: g.createdAt })));
+      setGroups(
+        list.map((g) => ({
+          groupId: g.groupId,
+          groupType: g.groupType as any,
+          createdAt: g.createdAt,
+          startedAt: g.startedAt,
+        }))
+      );
     });
     return () => unsub();
   }, [enabled, experimentId, currentGroupId]);
@@ -57,16 +83,24 @@ export function useAdminAutomationScheduler(currentGroupId?: string,isTimeOut:bo
 
       // 1) Send only the messages scheduled for the latest due time (avoid re-sending backlog)
       for (const g of groups) {
-        const created = toDate(g.createdAt);
-        if (!created) continue;
-        const elapsed = Math.floor((now - created.getTime()) / 1000);
+        const start = toDate(g.startedAt);
+        if (!start) continue; // only run when startedAt exists (group full)
+        const elapsed = Math.floor((now - start.getTime()) / 1000);
         const eligible = plan
           .map((p, idx) => ({ p, idx }))
-          .filter(({ p }) => (!g.groupType || p.groupType === g.groupType) && p.timeInChat <= elapsed);
+          .filter(
+            ({ p }) =>
+              (!g.groupType || p.groupType === g.groupType) &&
+              p.timeInChat <= elapsed
+          );
 
         if (!eligible.length) continue;
-        const latestDueTime = Math.max(...eligible.map(({ p }) => p.timeInChat));
-        const dueNow = eligible.filter(({ p }) => p.timeInChat === latestDueTime);
+        const latestDueTime = Math.max(
+          ...eligible.map(({ p }) => p.timeInChat)
+        );
+        const dueNow = eligible.filter(
+          ({ p }) => p.timeInChat === latestDueTime
+        );
 
         for (const { p, idx } of dueNow) {
           const key = `${g.groupId}|${planVersion}|${idx}`;
@@ -89,11 +123,15 @@ export function useAdminAutomationScheduler(currentGroupId?: string,isTimeOut:bo
       const nextDelays: number[] = [];
       const now2 = Date.now();
       for (const g of groups) {
-        const created = toDate(g.createdAt);
-        if (!created) continue;
-        const elapsedSec = Math.floor((now2 - created.getTime()) / 1000);
+        const start = toDate(g.startedAt);
+        if (!start) continue;
+        const elapsedSec = Math.floor((now2 - start.getTime()) / 1000);
         const next = plan
-          .filter((p) => (!g.groupType || p.groupType === g.groupType) && p.timeInChat > elapsedSec)
+          .filter(
+            (p) =>
+              (!g.groupType || p.groupType === g.groupType) &&
+              p.timeInChat > elapsedSec
+          )
           .map((p) => p.timeInChat)
           .sort((a, b) => a - b)[0];
         if (typeof next === "number") {

@@ -11,20 +11,18 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../lib/firebase";
-import type {  UserProfile } from "../types/app";
-const postOrGetUserId = async (id:string,expId:string) => {
+import type { UserProfile } from "../types/app";
+const postOrGetUserId = async (id: string, expId: string) => {
   try {
     const userRef = doc(db, "users", id);
     const docRef = await getDoc(userRef);
     const group = await decideAboutUserGroups(id, expId);
-    console.log("group",group);
-    
+    console.log("group", group);
+
     if (!docRef.exists()) {
-      await setDoc(userRef, {  id, group });
-      console.log(
-        `User created with ID: ${id}, group: ${group}`
-      );
-      return {  id, group };
+      await setDoc(userRef, { id, group });
+      console.log(`User created with ID: ${id}, group: ${group}`);
+      return { id, group };
     } else {
       console.log(`User fetched with ID: ${id}`);
       await updateDoc(userRef, { group });
@@ -44,7 +42,9 @@ const decideAboutUserGroups = async (userId: string, expId: string) => {
       if (!expSnap.exists()) throw new Error("Experiment not found");
 
       const expData = expSnap.data() as any;
-      const groups: string[] = Array.isArray(expData?.groups) ? expData.groups : [];
+      const groups: string[] = Array.isArray(expData?.groups)
+        ? expData.groups
+        : [];
       const capacity: number = Number(expData?.settings?.usersInGroup ?? 4);
 
       // First, try to place the user into an existing group
@@ -63,7 +63,12 @@ const decideAboutUserGroups = async (userId: string, expId: string) => {
 
         // If there is room, add the user atomically
         if (users.length < capacity) {
-          tx.update(gRef, { users: arrayUnion(userId) });
+          const nextCount = users.length + 1;
+          const update: any = { users: arrayUnion(userId) };
+          if (nextCount === capacity && !gData?.startedAt) {
+            update.startedAt = serverTimestamp();
+          }
+          tx.update(gRef, update);
           return gid;
         }
       }
@@ -81,6 +86,7 @@ const decideAboutUserGroups = async (userId: string, expId: string) => {
         name: `group-${newIndex}`,
         id: `exp-${expRef.id}-group-${newIndex}`,
         createdAt: serverTimestamp(),
+        startedAt: null,
       });
 
       // Append the group reference without overwriting concurrent updates
@@ -95,7 +101,7 @@ const decideAboutUserGroups = async (userId: string, expId: string) => {
   }
 };
 
-const setUserOnDb = async (user :UserProfile) => {
+const setUserOnDb = async (user: UserProfile) => {
   try {
     const userRef = doc(db, "users", user.id);
     let didAnswerAttentionQuestion =
