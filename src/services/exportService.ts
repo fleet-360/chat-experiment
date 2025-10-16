@@ -185,6 +185,22 @@ export async function buildExperimentSurveySheet(
     ? data.surveyAnswers
     : [];
 
+  // Build a map from userId -> { groupName, groupType }
+  const gq = query(
+    collection(db, "groups"),
+    where("experimentId", "==", expId)
+  );
+  const gsnap = await getDocs(gq);
+  const userToGroup: Record<string, { groupName: string; groupType: string }> =
+    {};
+  for (const d of gsnap.docs) {
+    const g = d.data() as any;
+    const groupName = g?.name ?? "";
+    const groupType = g?.groupType ?? "";
+    const users: string[] = Array.isArray(g?.users) ? g.users : [];
+    for (const uid of users) userToGroup[uid] = { groupName, groupType };
+  }
+
   // Collect all keys used across answers
   const keysSet = new Set<string>();
   for (const e of entries) {
@@ -194,7 +210,12 @@ export async function buildExperimentSurveySheet(
       .forEach((k) => keysSet.add(k));
   }
   const keys = Array.from(keysSet);
-  const headers = ["userid", ...mapSurveyKeysToEnglish(keys)];
+  const headers = [
+    "userid",
+    "groupname",
+    "grouptype",
+    ...mapSurveyKeysToEnglish(keys),
+  ];
 
   const sheet: ExportSheet = {
     name: "Survey",
@@ -204,8 +225,12 @@ export async function buildExperimentSurveySheet(
 
   for (const e of entries) {
     const ans = (e?.answers ?? {}) as Record<string, unknown>;
+    const uid = e?.userId ?? "";
+    const groupInfo = userToGroup[uid] ?? { groupName: "", groupType: "" };
     const row: (string | number | boolean | null | undefined)[] = [
-      e?.userId ?? "",
+      uid,
+      groupInfo.groupName,
+      groupInfo.groupType,
     ];
     for (const k of keys) {
       const v = ans[k];

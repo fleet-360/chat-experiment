@@ -37,6 +37,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Chat bubble tokens inspired by WhatsApp */
+  --chat-bubble-mine: oklch(0.97 0.06 140);
+  --chat-bubble-admin: oklch(0.96 0.02 140);
+  --chat-bubble-other: oklch(1 0 0);
 }
 
 .dark {
@@ -72,6 +76,10 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  /* Dark mode chat bubble tokens - slightly darker neutrals */
+  --chat-bubble-mine: oklch(0.3 0.035 140);
+  --chat-bubble-admin: oklch(0.28 0.015 140);
+  --chat-bubble-other: oklch(0.22 0 0);
 }
 
 @theme inline {

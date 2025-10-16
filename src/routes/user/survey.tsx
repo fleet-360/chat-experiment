@@ -306,7 +306,6 @@ export default function SurveyPage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const isLastStep = currentStep === groups.length - 1; // last groups page includes demographics
-  const goBack = () => setCurrentStep((s) => Math.max(0, s - 1));
   const goNext = () => {
     // Validate current page required answers
     const pageItems = groups[currentStep]?.items ?? [];
@@ -328,9 +327,11 @@ export default function SurveyPage() {
     <div className="container mx-auto max-w-3xl px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle style={{ marginBottom: "20px" }}>
-            {t("survey.title")}
-          </CardTitle>
+          {currentStep === 0 ? (
+            <CardTitle style={{ marginBottom: "20px" }}>
+              {t("survey.title")}
+            </CardTitle>
+          ) : null}
         </CardHeader>
         <CardContent className="space-y-8">
           {groups.map((g, gi) => {
@@ -410,9 +411,6 @@ export default function SurveyPage() {
           )}
         </CardContent>
         <CardFooter className="w-full gap-2">
-          <Button onClick={goBack} variant="secondary" disabled={isSubmitting}>
-            {t("survey.back")}
-          </Button>
           {!isLastStep ? (
             <Button
               onClick={goNext}
@@ -455,11 +453,11 @@ function LikertRow({
   return (
     <div className="space-y-3">
       <div className="text-sm font-medium mb-3">{label}</div>
-      <div className="flex items-center gap-2">
-        <div className="text-xs text-muted-foreground w-28 shrink-0 text-start">
+      <div className="flex items-center justify-center align-middle gap-1 flex-nowrap">
+        <div className="text-xs text-muted-foreground shrink-0 text-start whitespace-nowrap me-1">
           {leftLabel}
         </div>
-        <div className="flex items-center justify-center gap-3 flex-1">
+        <div className="flex items-center justify-center gap-3 mx-[10px]">
           {options.map((n) => (
             <label
               key={n}
@@ -475,7 +473,7 @@ function LikertRow({
             </label>
           ))}
         </div>
-        <div className="text-xs text-muted-foreground w-28 shrink-0 text-end">
+        <div className="text-xs text-muted-foreground shrink-0 text-end whitespace-nowrap ms-1">
           {rightLabel}
         </div>
       </div>

@@ -101,6 +101,7 @@ export default function Chat({
     if ((group as any)?.startedAt) return toDate((group as any).startedAt);
     return null;
   }, [group?.experimentId, (group as any)?.startedAt]);
+  console.log(group);
 
   const capacity = experiment.data?.settings?.usersInGroup ?? 4;
   const usersCount = group?.users?.length ?? 0;
@@ -182,7 +183,7 @@ export default function Chat({
           </div>
         </div>
       </CardHeader>
-      <CardContent style={{ backgroundColor: "#e0f7e9" }}>
+      <CardContent className="bg-muted">
         <div
           ref={listRef}
           onScroll={handleScroll}
