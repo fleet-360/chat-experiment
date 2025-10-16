@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
+import { Textarea } from "../../components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -26,11 +27,13 @@ export type FormValues = {
   timers: { time: string }[]; // time in mm:ss
 };
 
-
 export default function AdminSettingsPage() {
-  const experiment = useExperiment()
+  const experiment = useExperiment();
   const { t } = useTranslation();
-  const loaderDefaults = useMemo(() => formatSettings(experiment.data),[experiment.data]);
+  const loaderDefaults = useMemo(
+    () => formatSettings(experiment.data),
+    [experiment.data]
+  );
   const methods = useForm<FormValues>({
     defaultValues: loaderDefaults ?? {
       usersInGroup: 4,
@@ -61,7 +64,7 @@ export default function AdminSettingsPage() {
   // derived total in seconds available from current form value
 
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const messageRefs = useMemo(() => [] as (HTMLInputElement | null)[], []);
+  const messageRefs = useMemo(() => [] as (HTMLTextAreaElement | null)[], []);
 
   const onAddMessage = () =>
     messagesFa.append({ groupType: "emojy", message: "", at: "00:00" });
@@ -73,18 +76,21 @@ export default function AdminSettingsPage() {
     const sum = values.timers.reduce((acc, t) => acc + toSeconds(t.time), 0);
     if (sum !== total) {
       setSaveMessage(
-        t("pages.totalTimersMustEqualDuration", { sum: fromSeconds(sum), total: fromSeconds(total) })
+        t("pages.totalTimersMustEqualDuration", {
+          sum: fromSeconds(sum),
+          total: fromSeconds(total),
+        })
       );
       return;
     }
-    experiment.refresh()
+    experiment.refresh();
     await saveExperementSettings(experiment.experimentId, values, total);
     setSaveMessage(t("pages.settingsSaved"));
   };
-  
+
   return (
     <FormProvider {...methods}>
-      <Card className="p-4 space-y-6 max-w-2xl m-auto overflow-visible">
+      <Card className="p-4 space-y-6 w-full overflow-visible">
         <div className="flex items-center gap-3">
           <Link
             to="/admin/chat"
@@ -122,12 +128,16 @@ export default function AdminSettingsPage() {
                 className="w-24 rounded-md border px-3 py-2 text-sm bg-background"
                 {...register("totalDuration")}
               />
-              <span className="text-xs text-muted-foreground">{t("pages.egTime")}</span>
+              <span className="text-xs text-muted-foreground">
+                {t("pages.egTime")}
+              </span>
             </div>
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold">{t("pages.chatMessagesPlan")}</h2>
+            <h2 className="text-sm font-semibold">
+              {t("pages.chatMessagesPlan")}
+            </h2>
             <Card className="p-4 space-y-3 border rounded-md overflow-visible">
               {messagesFa.fields.map((field, idx) => (
                 <div
@@ -144,21 +154,24 @@ export default function AdminSettingsPage() {
                       <SelectValue placeholder={t("pages.group") as string} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="emojy">{t("pages.emojiGroup")}</SelectItem>
-                      <SelectItem value="noEmojy">{t("pages.nonEmojiGroup")}</SelectItem>
+                      <SelectItem value="emojy">
+                        {t("pages.emojiGroup")}
+                      </SelectItem>
+                      <SelectItem value="noEmojy">
+                        {t("pages.nonEmojiGroup")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
 
                   <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder={t("pages.message")}
-                      className="w-full rounded-md border px-3 py-2 text-sm bg-background"
+                    <Textarea
+                      placeholder={t("pages.message") as string}
+                      className="w-full rounded-md border px-3 py-2 text-sm bg-background resize-y"
+                      rows={3}
                       {...register(`messages.${idx}.message` as const)}
-                   
                       ref={(el) => {
                         // let RHF handle ref
-                        register(`messages.${idx}.message`).ref(el);
+                        register(`messages.${idx}.message`).ref(el as any);
                         messageRefs[idx] = el;
                       }}
                     />
@@ -202,14 +215,18 @@ export default function AdminSettingsPage() {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-sm font-semibold">{t("pages.chatTimersPlan")}</h2>
+            <h2 className="text-sm font-semibold">
+              {t("pages.chatTimersPlan")}
+            </h2>
             <Card className="p-4 space-y-3 border rounded-md">
               {timersFa.fields.map((field, idx) => (
                 <div
                   key={field.id}
                   className="grid grid-cols-[180px_120px_36px] items-center gap-2"
                 >
-                  <div className="text-sm text-muted-foreground">{t("pages.timer")}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {t("pages.timer")}
+                  </div>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -234,7 +251,10 @@ export default function AdminSettingsPage() {
                 </Button>
               </div>
               <div className="text-xs text-muted-foreground">
-                {t("pages.totalTimersMustBe", { expected: watch("totalDuration"), current: fromSeconds(sumTimers()) })}
+                {t("pages.totalTimersMustBe", {
+                  expected: watch("totalDuration"),
+                  current: fromSeconds(sumTimers()),
+                })}
               </div>
             </Card>
           </section>
@@ -254,32 +274,31 @@ export default function AdminSettingsPage() {
 }
 
 // Route loader: fetch current experiment settings and map to RHF defaults
-export function formatSettings(data : Experiment | null | undefined) {
-    if (!data) return null as any;
- 
-    const settings = data?.settings || {};
-    const usersInGroup = Number(settings?.usersInGroup ?? 4);
-    const totalDuration = fromSeconds(Number(settings?.totalDuration ?? 600));
-    const messagesArr: any[] = Array.isArray(data?.ChatMessagesplan)
-      ? data.ChatMessagesplan
-      : [];
-    const timersArr: any[] = Array.isArray(data?.ChatTimersplan)
-      ? data.ChatTimersplan
-      : [];
-    const messages = messagesArr.map((m) => ({
-      groupType: (m?.groupType as ChatGroupType) ?? "emojy",
-      message: String(m?.message ?? ""),
-      at: fromSeconds(Number(m?.timeInChat ?? 0)),
-    }));
-    const timers = timersArr.map((t) => ({
-      time: fromSeconds(Number(t?.time ?? 0)),
-    }));
-    const result: FormValues = {
-      usersInGroup,
-      totalDuration,
-      messages,
-      timers,
-    };
-    return result;
+export function formatSettings(data: Experiment | null | undefined) {
+  if (!data) return null as any;
 
+  const settings = data?.settings || {};
+  const usersInGroup = Number(settings?.usersInGroup ?? 4);
+  const totalDuration = fromSeconds(Number(settings?.totalDuration ?? 600));
+  const messagesArr: any[] = Array.isArray(data?.ChatMessagesplan)
+    ? data.ChatMessagesplan
+    : [];
+  const timersArr: any[] = Array.isArray(data?.ChatTimersplan)
+    ? data.ChatTimersplan
+    : [];
+  const messages = messagesArr.map((m) => ({
+    groupType: (m?.groupType as ChatGroupType) ?? "emojy",
+    message: String(m?.message ?? ""),
+    at: fromSeconds(Number(m?.timeInChat ?? 0)),
+  }));
+  const timers = timersArr.map((t) => ({
+    time: fromSeconds(Number(t?.time ?? 0)),
+  }));
+  const result: FormValues = {
+    usersInGroup,
+    totalDuration,
+    messages,
+    timers,
+  };
+  return result;
 }
