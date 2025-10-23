@@ -31,7 +31,6 @@ type LikertConfig = {
   scale: number; // e.g., 7
   leftKey: string;
   rightKey: string;
-  defaultLabel: string;
   leftDefault: string;
   rightDefault: string;
 };
@@ -42,7 +41,6 @@ type SemanticConfig = {
   scale: number; // e.g., 7
   leftKey: string;
   rightKey: string;
-  defaultLabel: string;
   leftDefault: string;
   rightDefault: string;
 };
@@ -83,7 +81,6 @@ export default function SurveyPage() {
     i18nKey: string,
     leftKey: string,
     rightKey: string,
-    defaultLabel: string,
     leftDefault: string,
     rightDefault: string,
     scale = 7
@@ -93,7 +90,6 @@ export default function SurveyPage() {
     scale,
     leftKey,
     rightKey,
-    defaultLabel,
     leftDefault,
     rightDefault,
   });
@@ -103,7 +99,6 @@ export default function SurveyPage() {
     i18nKey: string,
     leftKey: string,
     rightKey: string,
-    defaultLabel: string,
     leftDefault: string,
     rightDefault: string,
     scale = 7
@@ -113,7 +108,6 @@ export default function SurveyPage() {
     scale,
     leftKey,
     rightKey,
-    defaultLabel,
     leftDefault,
     rightDefault,
   });
@@ -125,7 +119,6 @@ export default function SurveyPage() {
       "survey.q6",
       "survey.incapable",
       "survey.capable",
-      "The group was incapable/capable",
       "Incapable",
       "Capable"
     ),
@@ -134,7 +127,6 @@ export default function SurveyPage() {
       "survey.q7",
       "survey.ineffective",
       "survey.effective",
-      "The group worked ineffectively/effectively",
       "Ineffective",
       "Effective"
     ),
@@ -143,7 +135,6 @@ export default function SurveyPage() {
       "survey.q8",
       "survey.incompetent",
       "survey.competent",
-      "The group was incompetent/competent",
       "Incompetent",
       "Competent"
     ),
@@ -154,7 +145,6 @@ export default function SurveyPage() {
       "survey.q9",
       "survey.unfriendly",
       "survey.friendly",
-      "The group felt unfriendly/friendly",
       "Unfriendly",
       "Friendly"
     ),
@@ -163,7 +153,6 @@ export default function SurveyPage() {
       "survey.q10",
       "survey.cold",
       "survey.warm",
-      "The group seemed cold/warm",
       "Cold",
       "Warm"
     ),
@@ -172,7 +161,6 @@ export default function SurveyPage() {
       "survey.q11",
       "survey.unapproachable",
       "survey.approachable",
-      "The group was unapproachable/approachable",
       "Unapproachable",
       "Approachable"
     ),
@@ -183,7 +171,6 @@ export default function SurveyPage() {
       "survey.q12",
       "survey.notAtAll",
       "survey.extremely",
-      "How comfortable did you feel communicating with the other members?",
       "Not at all",
       "Extremely"
     ),
@@ -194,7 +181,6 @@ export default function SurveyPage() {
       "survey.q13",
       "survey.notAtAll",
       "survey.extremely",
-      "Were you able to express all of your ideas?",
       "Not at all",
       "Extremely"
     ),
@@ -203,27 +189,24 @@ export default function SurveyPage() {
       "survey.q14",
       "survey.notAtAll",
       "survey.extremely",
-      "How often did you not present an idea because you were worried about what your partners would comment on it?",
       "Not at all",
       "Extremely"
     ),
   ];
   const groupDynamics = [
     likert(
-      "q15",
-      "survey.q15",
-      "survey.stronglyDisagree",
-      "survey.stronglyAgree",
-      "We showed positive attitudes towards one another.",
-      "Strongly disagree",
-      "Strongly agree"
-    ),
-    likert(
       "q27",
       "survey.q27",
       "survey.stronglyDisagree",
       "survey.stronglyAgree",
-      "It is safe to take a risk on this team.",
+      "Strongly disagree",
+      "Strongly agree"
+    ),
+    likert(
+      "q15",
+      "survey.q15",
+      "survey.stronglyDisagree",
+      "survey.stronglyAgree",
       "Strongly disagree",
       "Strongly agree"
     ),
@@ -234,7 +217,6 @@ export default function SurveyPage() {
       "survey.q20",
       "survey.disliked",
       "survey.liked",
-      "I disliked this group/I liked this group.",
       "Disliked",
       "Liked"
     ),
@@ -243,47 +225,42 @@ export default function SurveyPage() {
       "survey.q21",
       "survey.notWorkAgain",
       "survey.workAgain",
-      "I would not want to work with this group again/I would like to work with this group again.",
       "Would not work again",
       "Would work again"
     ),
   ];
-  const playfulness = [
-    likert(
-      "q22",
-      "survey.q22",
-      "survey.stronglyDisagree",
-      "survey.stronglyAgree",
-      "I found the interaction playful.",
-      "Strongly disagree",
-      "Strongly agree"
-    ),
-    likert(
-      "q23",
-      "survey.q23",
-      "survey.stronglyDisagree",
-      "survey.stronglyAgree",
-      "Participating in the task felt fun.",
-      "Strongly disagree",
-      "Strongly agree"
-    ),
-    likert(
-      "q24",
-      "survey.q24",
-      "survey.stronglyDisagree",
-      "survey.stronglyAgree",
-      "Participating in the task aroused my imagination.",
-      "Strongly disagree",
-      "Strongly agree"
-    ),
-  ];
+  // const playfulness = [
+  //   likert(
+  //     "q22",
+  //     "survey.q22",
+  //     "survey.stronglyDisagree",
+  //     "survey.stronglyAgree",
+  //     "Strongly disagree",
+  //     "Strongly agree"
+  //   ),
+  //   likert(
+  //     "q23",
+  //     "survey.q23",
+  //     "survey.stronglyDisagree",
+  //     "survey.stronglyAgree",
+  //     "Strongly disagree",
+  //     "Strongly agree"
+  //   ),
+  //   likert(
+  //     "q24",
+  //     "survey.q24",
+  //     "survey.stronglyDisagree",
+  //     "survey.stronglyAgree",
+  //     "Strongly disagree",
+  //     "Strongly agree"
+  //   ),
+  // ];
   const emojiUse = [
     likert(
       "q25",
       "survey.q25",
       "survey.notAtAll",
       "survey.veryOften",
-      "To what extent do you generally use emojis in chat conversations?",
       "Not at all",
       "Very often"
     ),
@@ -293,12 +270,12 @@ export default function SurveyPage() {
   // Pages structure per request (without titles displayed)
   const groups = useMemo(
     () => [
-      { titleKey: "", titleDefault: "", items: playfulness }, // Page 1
-      { titleKey: "", titleDefault: "", items: [...comfort, ...groupDynamics] }, // Page 2 (comfort + new risk-safety + attitudes)
-      { titleKey: "", titleDefault: "", items: expression }, // Page 3
-      { titleKey: "", titleDefault: "", items: groupEval }, // Page 4
+      { titleKey: "", titleDefault: "", items: [...comfort, ...groupDynamics] }, // Page 1 (comfort + new risk-safety + attitudes)
+      { titleKey: "", titleDefault: "", items: expression }, // Page 2
+      { titleKey: "", titleDefault: "", items: groupEval }, // Page 3
       { titleKey: "", titleDefault: "", items: groupCompetence }, // Page 5
       { titleKey: "", titleDefault: "", items: groupWarmth }, // Page 6
+      // { titleKey: "", titleDefault: "", items: playfulness }, // Page 4
       { titleKey: "", titleDefault: "", items: emojiUse }, // Page 7 includes demographics below
     ],
     []

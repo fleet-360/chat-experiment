@@ -256,7 +256,7 @@ export default function Chat({
             </p>
             <Button
               size="sm"
-              variant={"link"}
+              variant={"default"}
               onClick={() => navigate("/user/survey")}
             >
               {t("pages.goToSurvey")}

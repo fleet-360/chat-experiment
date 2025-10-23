@@ -73,6 +73,7 @@ export default function ChatInput({
           const { ref, ...field } = register("text");
           return (
             <textarea
+              data-gramm="false"
               {...field}
               ref={(el) => {
                 (ref as (instance: HTMLTextAreaElement | null) => void)(el);
