@@ -70,10 +70,16 @@ export default function UserIndex() {
           </p>
         </CardContent>
         <CardFooter className="justify-end">
-          <Button variant="outline" onClick={decline}>
+          <Button
+            variant="outline"
+            style={{ cursor: "pointer" }}
+            onClick={decline}
+          >
             {t("consent.cta.decline")}
           </Button>
-          <Button onClick={accept}>{t("consent.cta.accept")}</Button>
+          <Button style={{ cursor: "pointer" }} onClick={accept}>
+            {t("consent.cta.accept")}
+          </Button>
         </CardFooter>
       </Card>
 

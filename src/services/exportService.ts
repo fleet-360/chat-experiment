@@ -10,6 +10,7 @@ import { db } from "../lib/firebase";
 import * as XLSX from "xlsx";
 import { resources } from "../lib/i18n";
 import { hasEmoji } from "../lib/helpers/strings.helpers";
+import { getSurveyQuestionNames } from "../lib/surveyConfig";
 
 export type ExportSheet = {
   name: string;
@@ -201,20 +202,14 @@ export async function buildExperimentSurveySheet(
     for (const uid of users) userToGroup[uid] = { groupName, groupType };
   }
 
-  // Collect all keys used across answers
-  const keysSet = new Set<string>();
-  for (const e of entries) {
-    const ans = (e?.answers ?? {}) as Record<string, unknown>;
-    Object.keys(ans)
-      .sort()
-      .forEach((k) => keysSet.add(k));
-  }
-  const keys = Array.from(keysSet);
+  // Use the predefined order from surveyConfig
+  const orderedKeys = getSurveyQuestionNames();
+
   const headers = [
     "userid",
     "groupname",
     "grouptype",
-    ...mapSurveyKeysToEnglish(keys),
+    ...mapSurveyKeysToEnglish(orderedKeys),
   ];
 
   const sheet: ExportSheet = {
@@ -232,7 +227,7 @@ export async function buildExperimentSurveySheet(
       groupInfo.groupName,
       groupInfo.groupType,
     ];
-    for (const k of keys) {
+    for (const k of orderedKeys) {
       const v = ans[k];
       // Normalize objects to JSON strings; primitives as-is
       if (v == null) row.push("");

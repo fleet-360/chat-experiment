@@ -19,30 +19,11 @@ import {
 import { saveSurveyAnswers } from "../../services/experimentService";
 import { useNavigate } from "react-router";
 import { useExperiment } from "../../context/ExperimentContext";
+import { surveyGroups } from "../../lib/surveyConfig";
 
 type FormValues = Record<string, number | string> & {
   gender?: string;
   age?: number;
-};
-
-type LikertConfig = {
-  name: string;
-  i18nKey: string;
-  scale: number; // e.g., 7
-  leftKey: string;
-  rightKey: string;
-  leftDefault: string;
-  rightDefault: string;
-};
-
-type SemanticConfig = {
-  name: string;
-  i18nKey: string;
-  scale: number; // e.g., 7
-  leftKey: string;
-  rightKey: string;
-  leftDefault: string;
-  rightDefault: string;
 };
 
 export default function SurveyPage() {
@@ -76,210 +57,8 @@ export default function SurveyPage() {
     }
   };
 
-  const likert = (
-    name: string,
-    i18nKey: string,
-    leftKey: string,
-    rightKey: string,
-    leftDefault: string,
-    rightDefault: string,
-    scale = 7
-  ): LikertConfig => ({
-    name,
-    i18nKey,
-    scale,
-    leftKey,
-    rightKey,
-    leftDefault,
-    rightDefault,
-  });
-
-  const semantic = (
-    name: string,
-    i18nKey: string,
-    leftKey: string,
-    rightKey: string,
-    leftDefault: string,
-    rightDefault: string,
-    scale = 7
-  ): SemanticConfig => ({
-    name,
-    i18nKey,
-    scale,
-    leftKey,
-    rightKey,
-    leftDefault,
-    rightDefault,
-  });
-
-  // Step definitions based on requested pages
-  const groupCompetence = [
-    semantic(
-      "q6",
-      "survey.q6",
-      "survey.incapable",
-      "survey.capable",
-      "Incapable",
-      "Capable"
-    ),
-    semantic(
-      "q7",
-      "survey.q7",
-      "survey.ineffective",
-      "survey.effective",
-      "Ineffective",
-      "Effective"
-    ),
-    semantic(
-      "q8",
-      "survey.q8",
-      "survey.incompetent",
-      "survey.competent",
-      "Incompetent",
-      "Competent"
-    ),
-  ];
-  const groupWarmth = [
-    semantic(
-      "q9",
-      "survey.q9",
-      "survey.unfriendly",
-      "survey.friendly",
-      "Unfriendly",
-      "Friendly"
-    ),
-    semantic(
-      "q10",
-      "survey.q10",
-      "survey.cold",
-      "survey.warm",
-      "Cold",
-      "Warm"
-    ),
-    semantic(
-      "q11",
-      "survey.q11",
-      "survey.unapproachable",
-      "survey.approachable",
-      "Unapproachable",
-      "Approachable"
-    ),
-  ];
-  const comfort = [
-    likert(
-      "q12",
-      "survey.q12",
-      "survey.notAtAll",
-      "survey.extremely",
-      "Not at all",
-      "Extremely"
-    ),
-  ];
-  const expression = [
-    likert(
-      "q13",
-      "survey.q13",
-      "survey.notAtAll",
-      "survey.extremely",
-      "Not at all",
-      "Extremely"
-    ),
-    likert(
-      "q14",
-      "survey.q14",
-      "survey.notAtAll",
-      "survey.extremely",
-      "Not at all",
-      "Extremely"
-    ),
-  ];
-  const groupDynamics = [
-    likert(
-      "q27",
-      "survey.q27",
-      "survey.stronglyDisagree",
-      "survey.stronglyAgree",
-      "Strongly disagree",
-      "Strongly agree"
-    ),
-    likert(
-      "q15",
-      "survey.q15",
-      "survey.stronglyDisagree",
-      "survey.stronglyAgree",
-      "Strongly disagree",
-      "Strongly agree"
-    ),
-  ];
-  const groupEval = [
-    semantic(
-      "q20",
-      "survey.q20",
-      "survey.disliked",
-      "survey.liked",
-      "Disliked",
-      "Liked"
-    ),
-    semantic(
-      "q21",
-      "survey.q21",
-      "survey.notWorkAgain",
-      "survey.workAgain",
-      "Would not work again",
-      "Would work again"
-    ),
-  ];
-  // const playfulness = [
-  //   likert(
-  //     "q22",
-  //     "survey.q22",
-  //     "survey.stronglyDisagree",
-  //     "survey.stronglyAgree",
-  //     "Strongly disagree",
-  //     "Strongly agree"
-  //   ),
-  //   likert(
-  //     "q23",
-  //     "survey.q23",
-  //     "survey.stronglyDisagree",
-  //     "survey.stronglyAgree",
-  //     "Strongly disagree",
-  //     "Strongly agree"
-  //   ),
-  //   likert(
-  //     "q24",
-  //     "survey.q24",
-  //     "survey.stronglyDisagree",
-  //     "survey.stronglyAgree",
-  //     "Strongly disagree",
-  //     "Strongly agree"
-  //   ),
-  // ];
-  const emojiUse = [
-    likert(
-      "q25",
-      "survey.q25",
-      "survey.notAtAll",
-      "survey.veryOften",
-      "Not at all",
-      "Very often"
-    ),
-  ];
-  // q26 omitted from pages per requested structure
-
-  // Pages structure per request (without titles displayed)
-  const groups = useMemo(
-    () => [
-      { titleKey: "", titleDefault: "", items: [...comfort, ...groupDynamics] }, // Page 1 (comfort + new risk-safety + attitudes)
-      { titleKey: "", titleDefault: "", items: expression }, // Page 2
-      { titleKey: "", titleDefault: "", items: groupEval }, // Page 3
-      { titleKey: "", titleDefault: "", items: groupCompetence }, // Page 5
-      { titleKey: "", titleDefault: "", items: groupWarmth }, // Page 6
-      // { titleKey: "", titleDefault: "", items: playfulness }, // Page 4
-      { titleKey: "", titleDefault: "", items: emojiUse }, // Page 7 includes demographics below
-    ],
-    []
-  );
+  // Use the extracted survey configuration
+  const groups = useMemo(() => surveyGroups, []);
 
   const [currentStep, setCurrentStep] = useState(0);
   const isLastStep = currentStep === groups.length - 1; // last groups page includes demographics
@@ -390,6 +169,7 @@ export default function SurveyPage() {
         <CardFooter className="w-full gap-2">
           {!isLastStep ? (
             <Button
+              style={{ cursor: "pointer" }}
               onClick={goNext}
               className="ms-auto"
               disabled={isSubmitting}

@@ -258,6 +258,7 @@ export default function Chat({
               size="sm"
               variant={"default"}
               onClick={() => navigate("/user/survey")}
+              style={{ cursor: "pointer" }}
             >
               {t("pages.goToSurvey")}
             </Button>
