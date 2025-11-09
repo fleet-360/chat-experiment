@@ -170,6 +170,8 @@ export const resources = {
         sessionEnded: "The session has ended. Thank you for participating.",
         waitingForUsers:
           "Waiting for {{count}} more users to join before start",
+        waitingClosureWarning:
+          "If the group is not full before time runs out, the chat will be closed.",
       },
       consent: {
         intro: "Hello and welcome to this survey.",
@@ -319,6 +321,7 @@ export const resources = {
         sessionEnded: "הפגישה הסתיימה. תודה על השתתפותך.",
         waitingForUsers:
           "ממתינים ל-{{count}} משתתפים נוספים להצטרף לפני ההתחלה",
+        waitingClosureWarning: "אם הקבוצה לא תהיה מלאה עד תום הזמן, השיחה תיסגר.",
       },
       consent: {
         intro: "שלום וברוכים הבאים לסקר זה.",

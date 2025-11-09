@@ -25,3 +25,13 @@ export const toDate = (v: any): Date | null => {
   if (typeof v === "number") return new Date(v);
   return null;
 };
+
+export const timeFormat=(timeSc:number,withHours:boolean)=>{
+  const h = Math.floor(timeSc / 3600);
+  const m = Math.floor((timeSc % 3600) / 60);
+  const s = timeSc % 60;
+  return `${withHours || h > 0 ? padNumber(h) + ":" : ""}${padNumber(m)}:${padNumber(s)}`;
+   
+}
+  
+export const padNumber = (n: number) => String(n).padStart(2, "0");

@@ -26,6 +26,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { toDate } from "../../lib/helpers/dateTime.helper";
 import { useExperiment } from "../../context/ExperimentContext";
 import { useAdminAutomationScheduler } from "../../services/adminAutomation";
+import WaitingChat from "./WaitingChat";
+import { deleteEmptyGroup } from "../../services/experimentService";
+import { Loader } from "lucide-react";
 
 export type ChatProps = {
   groupId: string;
@@ -43,7 +46,7 @@ export default function Chat({
     (GroupMessage & { text?: string })[]
   >([]);
   const experiment = useExperiment();
-  const [group, setGroup] = useState<Group | undefined>(undefined);
+  const [group, setGroup] = useState<Group | undefined|null>(undefined);
   const { t } = useTranslation();
   const listRef = useRef<HTMLDivElement | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -57,6 +60,10 @@ export default function Chat({
     setIsTimeOut(false);
     const ref = doc(db, "groups", groupId);
     const unsub = onSnapshot(ref, (snap) => {
+      if (!snap.exists()) {
+        setGroup(null)
+        return
+      }
       const data = snap.data() as Group | undefined;
       setMessages(Array.isArray(data?.messages) ? data!.messages : []);
       setGroup(data);
@@ -65,7 +72,7 @@ export default function Chat({
   }, [groupId]);
 
   const headerTitle = useMemo(
-    () => group?.name ?? t("chat.groupTitle", { id: groupId }),
+    () => group?.name ?? t("chat.missingGroup"),
     [group?.name, groupId, t]
   );
 
@@ -96,16 +103,31 @@ export default function Chat({
     if (isAtBottomRef.current) requestAnimationFrame(scrollToBottom);
   }, [messages]);
 
+  const exitEmptyGroup = async () => {
+    await deleteEmptyGroup(groupId, experiment.data?.id || "")
+    if (!isAdmin) {
+
+      navigate("/user/thank-you")
+    }
+  }
+
   // Start time: only when group is full (startedAt). Until then show waiting message.
   const startDate = useMemo(() => {
     if ((group as any)?.startedAt) return toDate((group as any).startedAt);
     return null;
   }, [group?.experimentId, (group as any)?.startedAt]);
-  console.log(group);
 
   const capacity = experiment.data?.settings?.usersInGroup ?? 4;
   const usersCount = group?.users?.length ?? 0;
   const remainingToStart = Math.max(capacity - usersCount, 0);
+
+  if (group === undefined) {
+    return <div className="flex justify-center" ><Loader className="animate-spin " /></div>
+  }
+
+  if (group===null) {
+    exitEmptyGroup()
+  }
 
   return (
     <Card className={className}>
@@ -146,9 +168,8 @@ export default function Chat({
                 onClick={async () => {
                   try {
                     await exportGroupsToXlsx([{ groupId }], {
-                      filename: `${experiment.data?.id}-${
-                        group?.name
-                      }-${new Date().getTime()}`,
+                      filename: `${experiment.data?.id}-${group?.name
+                        }-${new Date().getTime()}`,
                     });
                   } catch (e) {
                     console.error("Failed to export group", e);
@@ -204,6 +225,7 @@ export default function Chat({
               .map((m, idx) => <MessageItem key={idx} message={m} />)
           )}
           <div ref={bottomRef} />
+          {!group?.startedAt && <WaitingChat onTimeout={exitEmptyGroup} groupCreatedDate={toDate(group?.createdAt) || new Date()} remainingUsers={((experiment?.data?.settings?.usersInGroup || 0) - (group?.users?.length || 0))} />}
         </div>
       </CardContent>
       <CardFooter className="border-t bg-muted/30 py-2 ">
@@ -219,8 +241,8 @@ export default function Chat({
                 const senderId = isAdmin
                   ? "user-admin"
                   : (typeof window !== "undefined" &&
-                      localStorage.getItem("userId")) ||
-                    "anonymous";
+                    localStorage.getItem("userId")) ||
+                  "anonymous";
                 const userIndex = Number(
                   group?.users?.findIndex((id: string) => id == senderId)
                 );
@@ -229,9 +251,9 @@ export default function Chat({
                 const senderName = asAdmin
                   ? "admin"
                   : "user-" +
-                    (userIndex > -1
-                      ? userIndex + 1
-                      : (experiment.data?.settings?.usersInGroup ?? 0) + 1);
+                  (userIndex > -1
+                    ? userIndex + 1
+                    : (experiment.data?.settings?.usersInGroup ?? 0) + 1);
                 const gRef = doc(db, "groups", groupId);
                 await updateDoc(gRef, {
                   messages: arrayUnion({

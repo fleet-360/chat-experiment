@@ -11,6 +11,7 @@ import {
   runTransaction,
   Timestamp,
   type Unsubscribe,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import type { SurveyAnswersPayload } from "../types/app";
@@ -202,4 +203,32 @@ export async function sendAdminMessageOnce(
     return true;
   });
   return res;
+}
+
+export async function deleteEmptyGroup(groupId: string, expId: string) {
+
+  try {
+    const ref = doc(db, "groups", groupId)
+
+    await deleteDoc(ref)
+    console.log('Group was deleted successfully')
+    const expRef = doc(db, "experiments", expId)
+
+    const expGroups = (await getDoc(expRef)).data()?.groups || []
+
+    const filterdGroups = expGroups.filter((gId: string) => gId !== groupId)
+
+    await setDoc(expRef, { groups: filterdGroups }, { merge: true })
+
+    console.log("Group was successfully removed from experiment");
+    
+
+  } catch (error) {
+    console.log('Error in Deleting group:', error)
+  }
+
+
+
+
+  return true
 }
