@@ -127,6 +127,7 @@ export default function Chat({
 
   if (group===null) {
     exitEmptyGroup()
+    return null
   }
 
   return (

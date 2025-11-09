@@ -28,7 +28,7 @@ const WaitingChat = ({ remainingUsers, groupCreatedDate, onTimeout }: WaitingCha
     return () => window.clearInterval(id);
   }, [groupCreatedDate, secondsCreatedDate]);
 
-  const totalSec = 20; // 2 minutes
+  const totalSec = 120; // 2 minutes
   const remainingSec = Math.max(totalSec - (elapsedSec || 0), 0);
 
   // Invoke the placeholder callback exactly once on timeout
