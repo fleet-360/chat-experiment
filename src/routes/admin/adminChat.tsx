@@ -20,10 +20,19 @@ export default function AdminChat() {
   useEffect(() => {
     const unsub = listenExperimentGroups(experimentId, (list) => {
       setGroups(list);
-      if (!selected && list?.length) setSelected(list[0].groupId);
+
+      if (!selected && list?.length ) setSelected(list[0].groupId??"");
     });
     return () => unsub();
   }, [experimentId, selected]);
+
+  useEffect(() => {
+
+    if (!groups.find(group => group.groupId === selected)) {
+      setSelected(undefined)
+    }
+
+  }, [groups])
 
   const onExportAll = async () => {
     try {
