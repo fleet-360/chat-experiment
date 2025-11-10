@@ -40,11 +40,11 @@ export default function AdminSidebar({
   return (
     <aside
       className={
-        "flex h-full flex-col border rounded-md bg-background " +
+        "flex flex-col border rounded-md bg-background  max-h-[600px] " +
         (className || "")
       }
     >
-      <div className="flex items-center gap-2 p-3 border-b bg-muted/50">
+      <div className="flex items-center gap-2 p-3 border-b bg-muted/50 ">
         <div className="px-2 py-1 text-xs font-semibold rounded bg-muted text-foreground">
           {experimentName}
         </div>
@@ -72,11 +72,11 @@ export default function AdminSidebar({
           onValueChange={setSearch}
           className="h-12"
         />
-        <CommandList className="max-h-none h-auto flex-1">
+        <CommandList className="max-h-none flex-1">
           <CommandEmpty>
             {t("pages.adminNoGroups")}
           </CommandEmpty>
-          <CommandGroup heading={t("pages.adminGroups")}>
+          <CommandGroup  heading={t("pages.adminGroups")}>
             {groups.map((g) => {
               const searchValue = `${g.groupName ?? ""} ${(g.users || []).join(
                 " "
