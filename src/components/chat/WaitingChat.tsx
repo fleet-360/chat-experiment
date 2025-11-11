@@ -8,7 +8,11 @@ interface WaitingChatProps {
   onTimeout?: () => void; // placeholder callback invoked when timer ends
 }
 
-const WaitingChat = ({ remainingUsers, groupCreatedDate, onTimeout }: WaitingChatProps) => {
+const WaitingChat = ({
+  remainingUsers,
+  groupCreatedDate,
+  onTimeout,
+}: WaitingChatProps) => {
   const { t } = useTranslation();
   const [elapsedSec, setElapsedSec] = useState<number>(0);
   const secondsCreatedDate = useMemo(
@@ -28,7 +32,7 @@ const WaitingChat = ({ remainingUsers, groupCreatedDate, onTimeout }: WaitingCha
     return () => window.clearInterval(id);
   }, [groupCreatedDate, secondsCreatedDate]);
 
-  const totalSec = 120; // 2 minutes
+  const totalSec = 180; // 3 minutes
   const remainingSec = Math.max(totalSec - (elapsedSec || 0), 0);
 
   // Invoke the placeholder callback exactly once on timeout
@@ -48,11 +52,14 @@ const WaitingChat = ({ remainingUsers, groupCreatedDate, onTimeout }: WaitingCha
       <p className="text-sm text-muted-foreground">
         {t("chat.waitingClosureWarning")}
       </p>
-      <p className="text-sm font-mono tabular-nums text-muted-foreground" aria-live="polite">
+      <p
+        className="text-sm font-mono tabular-nums text-muted-foreground"
+        aria-live="polite"
+      >
         {label}
       </p>
     </div>
-  )
-}
+  );
+};
 
-export default WaitingChat 
+export default WaitingChat;
