@@ -174,9 +174,9 @@ export const resources = {
           "If the group is not full before time runs out, the chat will be closed.",
       },
       consent: {
-        intro: "Hello and welcome to this survey.",
+        intro: "Hello and welcome to this study about group creativity.",
         readConsent:
-          "Before you begin, please read the consent form on this page.",
+          "Before you begin, please read the consent form and task description on this page.",
         statement: {
           title: "Consent Statement",
           p1: "You are participating in academic research. Your participation is voluntary, and your anonymity is guaranteed. The researchers will not receive your personal information.",
