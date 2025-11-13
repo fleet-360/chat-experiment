@@ -179,15 +179,15 @@ export const resources = {
           "Before you begin, please read the consent form on this page.",
         statement: {
           title: "Consent Statement",
-          p1: "You are participating in academic research. Your participation is voluntary, and your anonymity is guaranteed. The researchers will not receive any personal information about you.",
-          p2: "If you have any questions about the research, please contact the principal investigator, Prof. Shai Danziger, at shdanziger@gmail.com",
+          p1: "You are participating in academic research. Your participation is voluntary, and your anonymity is guaranteed. The researchers will not receive your personal information.",
+          p2: "If you have questions about the research, please contact Prof. Shai Danziger, at shdanziger@gmail.com",
         },
         about: {
           title: "Group creativity task",
-          p1: "In this study, you will work with others on a group task. You will be randomly assigned to a four-person group, and together you will generate ideas in an online text-based chatroom. Each group member will be identified only as user-1, user-2, user-3, or user-4, so that your identity remains anonymous.",
-          p2: "After providing consent, you’ll receive a link to a chatroom where you will communicate with your group members. The task will begin only after your group has four members and is full. Once the task is complete, you will be asked a series of questions about the activity and yourself.",
-          p3: "Please do not use any AI tools to generate responses. There are no right or wrong answers.",
-          p4: "During the task, only the written chat (similar to a WhatsApp conversation) will be recorded. No video or camera will be used. All data will be stored securely and analyzed only in anonymized form, so that no individual participant can be identified.",
+          p1: "In this study, you will work with others on a group task. You will be randomly assigned to a three-person group to generate ideas together in a text-based chatroom. You will be identified only as user-1, user-2, or user-3, to keep your identity anonymous.",
+          p2: "After consenting, you’ll receive a chat link. The task will start once your group is full (3 members). When finished, you will be asked some questions about the activity and yourself.",
+          p3: "Please do not AI tools. There are no right or wrong answers.",
+          p4: "During the task, only the written chat will be recorded. No video or camera will be used. All data will be stored securely and analyzed anonymously.",
           p5: "Please consent by clicking the >> button to continue.",
           p6: "Otherwise, please exit the study at this time.",
         },
@@ -321,7 +321,8 @@ export const resources = {
         sessionEnded: "הפגישה הסתיימה. תודה על השתתפותך.",
         waitingForUsers:
           "ממתינים ל-{{count}} משתתפים נוספים להצטרף לפני ההתחלה",
-        waitingClosureWarning: "אם הקבוצה לא תהיה מלאה עד תום הזמן, השיחה תיסגר.",
+        waitingClosureWarning:
+          "אם הקבוצה לא תהיה מלאה עד תום הזמן, השיחה תיסגר.",
       },
       consent: {
         intro: "שלום וברוכים הבאים לסקר זה.",
