@@ -174,9 +174,9 @@ export const resources = {
           "If the group is not full before time runs out, the chat will be closed.",
       },
       consent: {
-        intro: "Hello and welcome to this study about group creativity.",
+        intro: "Hello and welcome to this survey.",
         readConsent:
-          "Before you begin, please read the consent form and task description on this page.",
+          "Before you begin, please read the consent form on this page.",
         statement: {
           title: "Consent Statement",
           p1: "You are participating in academic research. Your participation is voluntary, and your anonymity is guaranteed. The researchers will not receive your personal information.",
@@ -186,7 +186,7 @@ export const resources = {
           title: "Group creativity task",
           p1: "In this study, you will work with others on a group task. You will be randomly assigned to a three-person group to generate ideas together in a text-based chatroom. You will be identified only as user-1, user-2, or user-3, to keep your identity anonymous.",
           p2: "After consenting, you’ll receive a chat link. The task will start once your group is full (3 members). When finished, you will be asked some questions about the activity and yourself.",
-          p3: "Please do not AI tools. There are no right or wrong answers.",
+          p3: "Please do not use AI tools. There are no right or wrong answers.",
           p4: "During the task, only the written chat will be recorded. No video or camera will be used. All data will be stored securely and analyzed anonymously.",
           p5: "Please consent by clicking the >> button to continue.",
           p6: "Otherwise, please exit the study at this time.",
