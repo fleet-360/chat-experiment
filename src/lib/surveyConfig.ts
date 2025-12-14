@@ -62,14 +62,14 @@ const semantic = (
 
 // Step definitions based on requested pages
 const groupCompetence = [
-  semantic(
-    "q6",
-    "survey.q6",
-    "survey.incapable",
-    "survey.capable",
-    "Incapable",
-    "Capable"
-  ),
+  // semantic(
+  //   "q6",
+  //   "survey.q6",
+  //   "survey.incapable",
+  //   "survey.capable",
+  //   "Incapable",
+  //   "Capable"
+  // ),
   semantic(
     "q7",
     "survey.q7",
@@ -98,14 +98,14 @@ const groupWarmth = [
     "Friendly"
   ),
   semantic("q10", "survey.q10", "survey.cold", "survey.warm", "Cold", "Warm"),
-  semantic(
-    "q11",
-    "survey.q11",
-    "survey.unapproachable",
-    "survey.approachable",
-    "Unapproachable",
-    "Approachable"
-  ),
+  // semantic(
+  //   "q11",
+  //   "survey.q11",
+  //   "survey.unapproachable",
+  //   "survey.approachable",
+  //   "Unapproachable",
+  //   "Approachable"
+  // ),
 ];
 
 const comfort = [
