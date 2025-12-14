@@ -32,7 +32,7 @@ const WaitingChat = ({
     return () => window.clearInterval(id);
   }, [groupCreatedDate, secondsCreatedDate]);
 
-  const totalSec = 180; // 3 minutes
+  const totalSec = 240; // 3 minutes
   const remainingSec = Math.max(totalSec - (elapsedSec || 0), 0);
 
   // Invoke the placeholder callback exactly once on timeout
