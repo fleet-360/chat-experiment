@@ -148,12 +148,14 @@ export const resources = {
         totalDuration: "Total duration",
         mmssPlaceholder: "mm:ss",
         egTime: "e.g. 10:00",
+        dateTime: "01/01/2024 10:00",
         totalTimersMustBe:
           "Total timers must be {{expected}} (current {{current}})",
         totalTimersMustEqualDuration:
           "Total timers ({{sum}}) must equal total duration ({{total}}).",
         settingsSaved: "Settings saved.",
         goToSurvey: "Go to survey",
+        startDate: "Start Date",
       },
       chat: {
         noMessages: "No messages yet.",

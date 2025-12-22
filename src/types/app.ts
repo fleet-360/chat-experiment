@@ -3,6 +3,7 @@ export type ChatGroupType = "emojy" | "noEmojy";
 export interface ExperimentSettings {
   usersInGroup: number;
   totalDuration: number;
+  startDate: Date;
 }
 
 export interface ChatMessagePlanItem {

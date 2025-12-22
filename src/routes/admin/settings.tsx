@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 import type { ChatGroupType, Experiment } from "../../types/app";
 import EmojiPickerButton from "../../components/chat/EmojiPickerButton";
 import { insertAtCaret as insertAtCaretUtil } from "../../components/chat/emojiUtils";
-import { fromSeconds, toSeconds } from "../../lib/helpers/dateTime.helper";
+import { fromSeconds, toDate, toSeconds } from "../../lib/helpers/dateTime.helper";
 import { useExperiment } from "../../context/ExperimentContext";
 import { saveExperementSettings } from "../../services/experimentService";
 
@@ -25,6 +25,7 @@ export type FormValues = {
   totalDuration: string; // mm:ss
   messages: { groupType: ChatGroupType; message: string; at: string }[]; // at in mm:ss
   timers: { time: string }[]; // time in mm:ss
+  startDate: Date;
 };
 
 export default function AdminSettingsPage() {
@@ -34,13 +35,21 @@ export default function AdminSettingsPage() {
     () => formatSettings(experiment.data),
     [experiment.data]
   );
+  console.log('loaderDefaults', loaderDefaults)
   const methods = useForm<FormValues>({
     defaultValues: loaderDefaults ?? {
       usersInGroup: 4,
       totalDuration: "10:00",
+      startDate:new Date(),
       messages: [],
       timers: [],
     },
+    values: loaderDefaults
+      ? {
+        ...loaderDefaults,
+        startDate: new Date(loaderDefaults.startDate).toLocaleString("sv-SE"),
+      }
+      : undefined,
     mode: "onChange",
   });
 
@@ -130,6 +139,20 @@ export default function AdminSettingsPage() {
               />
               <span className="text-xs text-muted-foreground">
                 {t("pages.egTime")}
+              </span>
+            </div>
+            <div className="flex items-center gap-4 pt-2">
+              <label className="text-sm font-medium min-w-56">
+                {t("pages.startDate")}
+              </label>
+              <input
+                type="datetime-local"
+                placeholder={t("pages.mmssPlaceholder")}
+                className="w-50 rounded-md border px-3 py-2 text-sm bg-background"
+                {...register("startDate", { valueAsDate: true })}
+              />
+              <span className="text-xs text-muted-foreground">
+                {t("pages.dateTime")}
               </span>
             </div>
           </section>
@@ -295,6 +318,7 @@ export function formatSettings(data: Experiment | null | undefined) {
     time: fromSeconds(Number(t?.time ?? 0)),
   }));
   const result: FormValues = {
+    startDate:  toDate(settings.startDate) ?? new Date() ,
     usersInGroup,
     totalDuration,
     messages,

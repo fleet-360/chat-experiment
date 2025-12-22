@@ -76,6 +76,7 @@ export async function saveExperementSettings(
     settings: {
       usersInGroup: Number(values.usersInGroup) || 0,
       totalDuration,
+      startDate: new Date(values.startDate),
     },
     ChatMessagesplan: values.messages.map((m) => ({
       groupType: m.groupType,
