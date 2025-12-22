@@ -20,11 +20,11 @@ const WaitPage = () => {
     return startDate.toLocaleString("en-GB");
   }, [i18n.language, startDate]);
 
-  const checkStart =useCallback(()=>{
+  const checkStart = useCallback(() => {
     if (startDate && startDate.getTime() <= Date.now()) {
       navigate("/user/welcome?PROLIFIC_PID=" + localStorage.getItem("userId"));
     }
-  },[navigate, startDate])
+  }, [navigate, startDate])
 
   useEffect(() => {
     checkStart()
