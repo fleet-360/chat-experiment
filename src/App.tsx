@@ -24,6 +24,8 @@ function App() {
   const initial = data?.experiment ?? null;
   const navigation = useNavigation();
   const isNavigating = Boolean(navigation.location);
+
+
   return (
     <ExperimentProvider experimentId={experimentId} initialData={initial}>
       {isNavigating && <Spinner />}

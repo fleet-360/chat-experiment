@@ -149,6 +149,10 @@ export const resources = {
         mmssPlaceholder: "mm:ss",
         egTime: "e.g. 10:00",
         dateTime: "01/01/2024 10:00",
+        experimentStartsAt: "The experiment will start at {{dateTime}}.",
+        experimentStartUnknown: "Start time is not available yet.",
+        waitForStart:
+          "Please keep this tab open. We will move you automatically once it begins.",
         totalTimersMustBe:
           "Total timers must be {{expected}} (current {{current}})",
         totalTimersMustEqualDuration:
@@ -311,6 +315,10 @@ export const resources = {
         adminChat: "צ'אט מנהל",
         prolificRequiredTitle: "גישה נדחתה",
         prolificRequiredMessage: "יש להתחבר דרך מערכת Prolific",
+        experimentStartsAt: "הניסוי יתחיל ב-{{dateTime}}.",
+        experimentStartUnknown: "מועד תחילת הניסוי אינו זמין.",
+        waitForStart:
+          "השאירו את העמוד פתוח ונעביר אתכם אוטומטית ברגע שהניסוי יתחיל.",
       },
       chat: {
         noMessages: "אין הודעות עדיין.",

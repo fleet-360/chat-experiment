@@ -10,6 +10,7 @@ const UserQuestions = () =>
   import("./user/survey").then((m) => ({ Component: m.default }));
 const UserThankYou = () =>
   import("./user/thank-you").then((m) => ({ Component: m.default }));
+const WaitPage = () => import("./user/wait").then((m) => ({ Component: m.default }))
 
 const AdminSettings = () =>
   import("./admin/settings").then((m) => ({ Component: m.default }));
@@ -23,6 +24,7 @@ const UserLayout = () =>
   import("./user/layout").then((m) => ({ Component: m.default }));
 const AdminLayout = () =>
   import("./admin/layout").then((m) => ({ Component: m.default, loader: m.loader }));
+
 
 export const router = createBrowserRouter([
   {
@@ -38,7 +40,8 @@ export const router = createBrowserRouter([
         path: "user",
         lazy: UserLayout,
         children: [
-          { index: true, lazy: UserIndex },
+          { index: true, lazy: WaitPage },
+          { path: "welcome", lazy: UserIndex },
           { path: "chat", lazy: UserChat },
           { path: "survey", lazy: UserQuestions },
           { path: "thank-you", lazy: UserThankYou },

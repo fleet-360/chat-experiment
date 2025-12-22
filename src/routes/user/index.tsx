@@ -10,20 +10,11 @@ import {
   CardContent,
   CardFooter,
 } from "../../components/ui/card";
-// import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 export default function UserIndex() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  // const [consented, setConsented] = useLocalStorage<boolean>({
-  //   key: "consentAccepted",
-  //   initialValue: false,
-  // });
-  // const [step, setStep] = useState<"consent" | "about">("consent");
 
-  // useEffect(() => {
-  //   // if (consented) setStep("about");
-  // }, [consented]);
 
   const accept = () => navigate("/user/chat");
   const decline = () => navigate("/user/thank-you");
