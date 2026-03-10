@@ -209,7 +209,7 @@ export default function Chat({
         <div
           ref={listRef}
           onScroll={handleScroll}
-          className="flex flex-col gap-3 h-[50vh] overflow-y-auto pe-2 pt-4"
+          className="flex flex-col gap-3 h-[60vh] overflow-y-auto pe-2 pt-4"
         >
           {messages.length === 0 ? (
             <div className="text-sm text-muted-foreground">

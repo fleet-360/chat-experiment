@@ -39,14 +39,13 @@ export default function EmojiPickerButton({ onPick, className, disabled }: Emoji
         <Smile className="size-5" />
       </Button>
       {open && (
-        <div className="absolute z-50 end-0 bottom-full mb-2 shadow-sm rounded-xl overflow-hidden border bg-background">
+        <div className="absolute z-50 end-0 bottom-full mb-2 shadow-sm rounded-l border bg-background">
           <EmojiPicker
             onEmojiClick={(emoji) => {
               onPick(emoji.emoji);
-              setOpen(false);
             }}
             autoFocusSearch={false}
-            width={320}
+            width={280}
             height={380}
             skinTonesDisabled
             lazyLoadEmojis

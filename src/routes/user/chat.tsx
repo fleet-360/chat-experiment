@@ -38,7 +38,7 @@ export default function UserChat() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-1 py-8">
       <Chat groupId={data?.group} />
     </div>
   );
