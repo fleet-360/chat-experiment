@@ -210,11 +210,11 @@ function LikertRow({
   return (
     <div className="space-y-3">
       <div className="text-sm font-medium mb-3">{label}</div>
-      <div className="flex items-center justify-center align-middle gap-1 flex-nowrap">
-        <div className="text-xs text-muted-foreground shrink-0 text-start whitespace-nowrap me-1">
+      <div className="flex flex-wrap items-center justify-center gap-y-2 sm:flex-nowrap sm:gap-1">
+        <div className="order-2 basis-1/2 text-xs text-muted-foreground text-start sm:order-none sm:basis-auto sm:shrink-0 sm:whitespace-nowrap sm:me-1">
           {leftLabel}
         </div>
-        <div className="flex items-center justify-center gap-3 mx-[10px]">
+        <div className="order-1 basis-full flex items-center justify-between gap-1 sm:order-none sm:basis-auto sm:justify-center sm:gap-3 sm:mx-[10px]">
           {options.map((n) => (
             <label
               key={n}
@@ -230,7 +230,7 @@ function LikertRow({
             </label>
           ))}
         </div>
-        <div className="text-xs text-muted-foreground shrink-0 text-end whitespace-nowrap ms-1">
+        <div className="order-3 basis-1/2 text-xs text-muted-foreground text-end sm:order-none sm:basis-auto sm:shrink-0 sm:whitespace-nowrap sm:ms-1">
           {rightLabel}
         </div>
       </div>
