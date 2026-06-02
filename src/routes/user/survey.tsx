@@ -48,7 +48,7 @@ export default function SurveyPage() {
       await saveSurveyAnswers(
         userId,
         data as Record<string, unknown>,
-        experimentId
+        experimentId,
       );
       navigate("/user/thank-you");
     } catch (e) {
@@ -84,7 +84,7 @@ export default function SurveyPage() {
       <Card>
         <CardHeader>
           {currentStep === 0 ? (
-            <CardTitle style={{ marginBottom: "20px" }}>
+            <CardTitle className="mb-5 text-lg leading-snug sm:text-2xl sm:leading-tight">
               {t("survey.title")}
             </CardTitle>
           ) : null}
@@ -212,7 +212,7 @@ function LikertRow({
       <div className="text-sm font-medium mb-3">{label}</div>
       <div className="flex flex-wrap items-center justify-center gap-y-2 sm:flex-nowrap sm:gap-1">
         <div className="order-2 basis-1/2 text-xs text-muted-foreground text-start sm:order-none sm:basis-auto sm:shrink-0 sm:whitespace-nowrap sm:me-1">
-          {leftLabel}
+          <ResponsiveWordsLabel text={leftLabel} />
         </div>
         <div className="order-1 basis-full flex items-center justify-between gap-1 sm:order-none sm:basis-auto sm:justify-center sm:gap-3 sm:mx-[10px]">
           {options.map((n) => (
@@ -231,9 +231,23 @@ function LikertRow({
           ))}
         </div>
         <div className="order-3 basis-1/2 text-xs text-muted-foreground text-end sm:order-none sm:basis-auto sm:shrink-0 sm:whitespace-nowrap sm:ms-1">
-          {rightLabel}
+          <ResponsiveWordsLabel text={rightLabel} />
         </div>
       </div>
     </div>
+  );
+}
+
+function ResponsiveWordsLabel({ text }: { text: string }) {
+  const words = text.split(/\s+/).filter(Boolean);
+  return (
+    <>
+      {words.map((word, i) => (
+        <span key={i} className="block sm:inline">
+          {word}
+          {i < words.length - 1 ? " " : ""}
+        </span>
+      ))}
+    </>
   );
 }
